@@ -44,7 +44,7 @@ def main(data_path, corpus_name=None, model_name=None, metric_to_watch=None):
                             max_len=max_len, 
                             out_categories=len(train_dataset.get_i2w()), w2i=w2i, i2w=i2w, model_name=model_name, out_dir=out_dir)
     
-    wandb_logger = WandbLogger(project='ICDAR 2024', group=f"{corpus_name}", name=f"{model_name}", log_model=False)
+    # wandb_logger = WandbLogger(project='ICDAR 2024', group=f"{corpus_name}", name=f"{model_name}", log_model=False)
 
     early_stopping = EarlyStopping(monitor=metric_to_watch, min_delta=0.01, patience=5, mode="min", verbose=True)
     
@@ -52,9 +52,12 @@ def main(data_path, corpus_name=None, model_name=None, metric_to_watch=None):
                                    monitor=metric_to_watch, mode='min',
                                    save_top_k=1, verbose=True)
 
-    trainer = Trainer(max_epochs=5000, check_val_every_n_epoch=5, logger=wandb_logger, callbacks=[checkpointer, early_stopping])
+    # trainer = Trainer(max_epochs=5000, check_val_every_n_epoch=5, logger=wandb_logger, callbacks=[checkpointer, early_stopping])
+    trainer = Trainer(max_epochs=5000, check_val_every_n_epoch=5, callbacks=[checkpointer, early_stopping])
     
     trainer.fit(model, train_dataloader, val_dataloader)
+
+    
 
     model = SMT.load_from_checkpoint(checkpointer.best_model_path)
 

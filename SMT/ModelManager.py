@@ -324,6 +324,7 @@ def get_SMT(in_channels, max_height, max_width, max_len, out_categories, w2i, i2
     model = SMT(in_channels=in_channels, maxh=(max_height//16)+1, maxw=(max_width//8)+1, 
                 maxlen=max_len+1, out_categories=out_categories, 
                 padding_token=0, w2i=w2i, i2w=i2w, out_dir=out_dir).to(device)
+    model = nn.DataParallel(model).to(device)
     
     #with torch.no_grad():
     #    print(max_height, max_width, max_len)

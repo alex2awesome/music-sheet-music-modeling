@@ -13,9 +13,13 @@ from torch.utils.data import Dataset
 from torchvision import transforms
 
 @gin.configurable
-def load_set(path, base_folder="GrandStaff/", fileformat="jpg", krn_type="bekrn", reduce_ratio=0.5, fixed_size=None):
+def load_set(path, reduce_ratio=0.5, fixed_size=None):
+    base_folder = "GrandStaff/"
+    fileformat = "jpg"
+    krn_type = "bekrn"
     x = []
     y = []
+    
     with open(path) as datafile:
         lines = datafile.readlines()
         for line in progress.track(lines):
@@ -193,108 +197,20 @@ class GrandStaffSingleSystem(OMRIMG2SEQDataset):
                     
             Y[idx] = self.erase_numbers_in_tokens_with_equal(['<bos>'] + krn + ['<eos>'])
         return Y
-    
-class CTCDataset(Dataset):
-    def __init__(self, data_path, augment=False) -> None:
-        self.x, self.y = load_set(data_path)
-        self.x = self.preprocess_images(self.x)
-        self.y = self.preprocess_gt(self.y)
-        self.tensorTransform = transforms.Compose([
-            transforms.ToPILImage(),
-            transforms.Grayscale(),
-            transforms.ToTensor()]
-        )
-    
-    def preprocess_images(self, X):
-        for idx, sample in enumerate(X):
-            X[idx] = cv2.rotate(sample, cv2.ROTATE_90_CLOCKWISE)
 
-        return X
-    
-    def preprocess_gt(self, Y):
-        for idx, krn in enumerate(Y):
-            krn = "".join(krn)
-            krn = krn.replace(" ", " <s> ")
-            krn = krn.replace("·", "")
-            krn = krn.replace("\t", " <t> ")
-            krn = krn.replace("\n", " <b> ")
-            krn = krn.split(" ")
-                    
-            Y[idx] = self.erase_numbers_in_tokens_with_equal(krn)
-        return Y
 
-    def __len__(self):
-        return len(self.x)
-    
-    def erase_numbers_in_tokens_with_equal(self, tokens):
-        return [re.sub(r'(?<=\=)\d+', '', token) for token in tokens]
-
-    def __getitem__(self, index):
-        image = self.tensorTransform(self.x[index])
-        gt = torch.from_numpy(np.asarray([self.w2i[token] for token in self.y[index]]))
-        
-        return image, gt, (image.shape[2] // 8) * (image.shape[1] // 16), len(gt)
-
-    def get_max_hw(self):
-        m_width = np.max([img.shape[1] for img in self.x])
-        m_height = np.max([img.shape[0] for img in self.x])
-
-        return m_height, m_width
-    
-    def get_max_seqlen(self):
-        return np.max([len(seq) for seq in self.y])
-
-    def vocab_size(self):
-        return len(self.w2i)
-
-    def get_gt(self):
-        return self.y
-    
-    def set_dictionaries(self, w2i, i2w):
-        self.w2i = w2i
-        self.i2w = i2w
-        self.padding_token = w2i['<pad>']
-    
-    def get_dictionaries(self):
-        return self.w2i, self.i2w
-    
-    def get_i2w(self):
-        return self.i2w
-
-@gin.configurable
-def load_grandstaff_singleSys(data_path, vocab_name, val_path=None):
+def load_grandstaff_singleSys(data_path, vocab_path, val_path=None):
     if val_path == None:
         val_path = data_path
     train_dataset = GrandStaffSingleSystem(data_path=f"{data_path}/train.txt", augment=True)
     val_dataset = GrandStaffSingleSystem(data_path=f"{val_path}/val.txt")
     test_dataset = GrandStaffSingleSystem(data_path=f"{data_path}/test.txt")
 
-    w2i, i2w = check_and_retrieveVocabulary([train_dataset.get_gt(), val_dataset.get_gt(), test_dataset.get_gt()], "vocab/", f"{vocab_name}")
+    w2i, i2w = check_and_retrieveVocabulary([train_dataset.get_gt(), val_dataset.get_gt(), test_dataset.get_gt()], vocab_path)
 
     train_dataset.set_dictionaries(w2i, i2w)
     val_dataset.set_dictionaries(w2i, i2w)
     test_dataset.set_dictionaries(w2i, i2w)
 
     return train_dataset, val_dataset, test_dataset
-
-@gin.configurable
-def load_ctc_data(data_path, vocab_name, val_path=None):
-    if val_path == None:
-        val_path = data_path
-    train_dataset = CTCDataset(data_path=f"{data_path}/train.txt", augment=True)
-    val_dataset = CTCDataset(data_path=f"{val_path}/val.txt")
-    test_dataset = CTCDataset(data_path=f"{data_path}/test.txt")
-
-    w2i, i2w = check_and_retrieveVocabulary([train_dataset.get_gt(), val_dataset.get_gt(), test_dataset.get_gt()], "vocab/", f"{vocab_name}")
-
-    train_dataset.set_dictionaries(w2i, i2w)
-    val_dataset.set_dictionaries(w2i, i2w)
-    test_dataset.set_dictionaries(w2i, i2w)
-
-    return train_dataset, val_dataset, test_dataset
-
-
-
-     
-
 
