@@ -18,17 +18,18 @@ from eval_functions import compute_poliphony_metrics
 
 
 class PositionalEncoding2D(nn.Module):
-
     def __init__(self, dim, h_max, w_max):
         super(PositionalEncoding2D, self).__init__()
         self.h_max = h_max
         self.max_w = w_max
         self.dim = dim
-        self.pe = torch.zeros((1, dim, h_max, w_max), device=torch.device('cuda' if torch.cuda.is_available() else 'cpu'), requires_grad=False)
 
-        div = torch.exp(-torch.arange(0., dim // 2, 2) / dim * torch.log(torch.tensor(10000.0))).unsqueeze(1)
-        w_pos = torch.arange(0., w_max)
-        h_pos = torch.arange(0., h_max)
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.pe = torch.zeros((1, dim, h_max, w_max), device=device, requires_grad=False)
+
+        div = torch.exp(-torch.arange(0., dim // 2, 2, device=device) / dim * torch.log(torch.tensor(10000.0, device=device))).unsqueeze(1)
+        w_pos = torch.arange(0., w_max, device=device)
+        h_pos = torch.arange(0., h_max, device=device)
         self.pe[:, :dim // 2:2, :, :] = torch.sin(h_pos * div).unsqueeze(0).unsqueeze(3).repeat(1, 1, 1, w_max)
         self.pe[:, 1:dim // 2:2, :, :] = torch.cos(h_pos * div).unsqueeze(0).unsqueeze(3).repeat(1, 1, 1, w_max)
         self.pe[:, dim // 2::2, :, :] = torch.sin(w_pos * div).unsqueeze(0).unsqueeze(2).repeat(1, 1, h_max, 1)
@@ -39,14 +40,13 @@ class PositionalEncoding2D(nn.Module):
         Add 2D positional encoding to x
         x: (B, C, H, W)
         """
+        device = x.device
+        self.pe = self.pe.to(device)  # Ensure pe is on the same device as x
         return x + self.pe[:, :, :x.size(2), :x.size(3)]
-
-    def get_pe_by_size(self, h, w, device):
-        return self.pe[:, :, :h, :w].to(device)
-
+    
 @gin.configurable
 class SequentialTransformer(L.LightningModule):
-    def __init__(self, maxh, maxw, maxlen, out_categories, padding_token, in_channels, w2i, i2w, out_dir, d_model=None, dim_ff=None, num_dec_layers=None, encoder_type="Normal", swin_image_size=(256,800)) -> None:
+    def __init__(self, maxh, maxw, maxlen, out_categories, padding_token, in_channels, w2i, i2w, out_dir, d_model=256, dim_ff=256, num_dec_layers=8, encoder_type="NexT", swin_image_size=(256,800)) -> None:
         super().__init__()
         self.encoder_type = encoder_type
         print(swin_image_size)
@@ -180,17 +180,19 @@ class SequentialTransformer(L.LightningModule):
         self.valgts.append(gt)
 
 class SMT(SequentialTransformer):
-    def __init__(self, maxh, maxw, maxlen, out_categories, padding_token, in_channels, w2i, i2w, out_dir) -> None:
+    def __init__(self, maxh, maxw, maxlen, out_categories, padding_token, in_channels, w2i, i2w, out_dir, verbose=False) -> None:
         super().__init__(maxh, maxw, maxlen, out_categories, padding_token, in_channels, w2i, i2w, out_dir)
+        self.verbose = verbose
     
     def on_validation_epoch_end(self):
         cer, ser, ler = compute_poliphony_metrics(self.valpredictions, self.valgts)
         
-        random_index = np.random.randint(0, len(self.valpredictions))
-        predtoshow = self.valpredictions[random_index]
-        gttoshow = self.valgts[random_index]
-        print(f"[Prediction] - {predtoshow}")
-        print(f"[GT] - {gttoshow}")
+        if self.verbose:
+            random_index = np.random.randint(0, len(self.valpredictions))
+            predtoshow = self.valpredictions[random_index]
+            gttoshow = self.valgts[random_index]
+            print(f"[Prediction] - {predtoshow}")
+            print(f"[GT] - {gttoshow}")
 
         self.log('val_CER', cer, prog_bar=True)
         self.log('val_SER', ser, prog_bar=True)
@@ -323,10 +325,9 @@ def get_model(maxwidth, maxheight, in_channels, out_size, blank_idx, i2w, model_
     
 def get_SMT(in_channels, max_height, max_width, max_len, out_categories, w2i, i2w, out_dir, model_name=None):
     device=torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    model = SMT(in_channels=in_channels, maxh=(max_height//16)+1, maxw=(max_width//8)+1, 
+    model = SMT(in_channels=in_channels, maxh=32, maxw=128, 
                 maxlen=max_len+1, out_categories=out_categories, 
                 padding_token=0, w2i=w2i, i2w=i2w, out_dir=out_dir).to(device)
-    model = nn.DataParallel(model).to(device)
     
     #with torch.no_grad():
     #    print(max_height, max_width, max_len)

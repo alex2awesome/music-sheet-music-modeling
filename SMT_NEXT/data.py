@@ -13,22 +13,23 @@ from torch.utils.data import Dataset
 from torchvision import transforms
 
 @gin.configurable
-def load_set(path, reduce_ratio=0.5, fixed_size=None):
-    base_folder = "GrandStaff/"
+def load_set(partition_file, reduce_ratio=0.5, fixed_size=None):
+    dataset_folder = "GrandStaff"
     fileformat = "jpg"
     krn_type = "bekrn"
     x = []
     y = []
     
-    with open(path) as datafile:
-        lines = datafile.readlines()
+    with open(partition_file) as partitionfile:
+        lines = partitionfile.readlines()
         for line in progress.track(lines):
             excerpt = line.replace("\n", "")
             try:
-                with open(f"Data/{base_folder}/{'.'.join(excerpt.split('.')[:-1])}.{krn_type}") as krnfile:
+                filename = '.'.join(excerpt.split('.')[:-1])
+                with open(f"Data/{dataset_folder}/{filename}.{krn_type}") as krnfile:
                     krn_content = krnfile.read()
-                    fname = ".".join(excerpt.split('.')[:-1])
-                    img = cv2.imread(f"Data/{base_folder}/{fname}{fileformat}")
+                    img = cv2.imread(f"Data/{dataset_folder}/{filename}.{fileformat}")
+                    
                     if fixed_size != None:
                         width = fixed_size[1]
                         height = fixed_size[0]
@@ -199,12 +200,10 @@ class GrandStaffSingleSystem(OMRIMG2SEQDataset):
         return Y
 
 
-def load_grandstaff_singleSys(data_path, vocab_path, val_path=None):
-    if val_path == None:
-        val_path = data_path
-    train_dataset = GrandStaffSingleSystem(data_path=f"{data_path}/train.txt", augment=True)
-    val_dataset = GrandStaffSingleSystem(data_path=f"{val_path}/val.txt")
-    test_dataset = GrandStaffSingleSystem(data_path=f"{data_path}/test.txt")
+def load_grandstaff_singleSys(partition_directory, vocab_path, val_path=None):
+    train_dataset = GrandStaffSingleSystem(data_path=f"{partition_directory}/train.txt", augment=True)
+    val_dataset = GrandStaffSingleSystem(data_path=f"{partition_directory}/validation.txt")
+    test_dataset = GrandStaffSingleSystem(data_path=f"{partition_directory}/test.txt")
 
     w2i, i2w = check_and_retrieveVocabulary([train_dataset.get_gt(), val_dataset.get_gt(), test_dataset.get_gt()], vocab_path)
 

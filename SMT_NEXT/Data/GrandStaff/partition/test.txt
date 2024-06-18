@@ -1,0 +1,10 @@
+grandstaff_dataset/piano-sonatas/sonata11-3/original_m-0-5.krn
+grandstaff_dataset/piano-sonatas/sonata28-4/maj2_up_m-251-256.krn
+grandstaff_dataset/piano-sonatas/sonata28-4/maj2_down_m-101-105.krn
+grandstaff_dataset/piano-sonatas/sonata11-3/maj2_up_m-15-18.krn
+grandstaff_dataset/piano-sonatas/sonata28-4/original_m-51-56.krn
+grandstaff_dataset/piano-sonatas/sonata28-4/maj3_up_m-137-141.krn
+grandstaff_dataset/piano-sonatas/sonata11-3/min3_up_m-20-24.krn
+grandstaff_dataset/piano-sonatas/sonata28-4/maj3_down_m-189-193.krn
+grandstaff_dataset/piano-sonatas/sonata28-4/maj2_up_m-246-251.krn
+grandstaff_dataset/piano-sonatas/sonata11-3/maj3_down_m-16-20.krn
