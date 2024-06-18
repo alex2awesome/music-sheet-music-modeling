@@ -2,6 +2,8 @@
 SMT/Data/GrandStaff/grandstaff_dataset
 SMT/Data/Quartets/quartets_dataset
 SMT/weights
+SMT_NEXT/weights
+
 SMT_NEXT/Data/GrandStaff/grandstaff_dataset
 SMT_NEXT/Data/GrandStaff/grandstaff.tgz
 # Byte-compiled / optimized / DLL files
