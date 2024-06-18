@@ -10,8 +10,9 @@ def getFiles(directory):
             if file.endswith('.krn'):
                 krn_files.append(os.path.relpath(os.path.join(root, file), directory))
                 counter += 1
-                if counter == 100:
+                if counter == 1000:
                     return krn_files
+    return krn_files
 
 def split_files_to_datasets(directory):
     # Get all .krn file paths
@@ -20,9 +21,9 @@ def split_files_to_datasets(directory):
     print(krn_files)
     # Shuffle the file list
     random.shuffle(krn_files)
-
+    krn_files = krn_files[:1000]
     # Calculate split sizes
-    total_files = len(krn_files)
+    total_files =  len(krn_files)
     test_size = math.ceil(total_files * 0.10)
     validation_size = math.ceil(total_files * 0.10)
     train_size = total_files - test_size - validation_size

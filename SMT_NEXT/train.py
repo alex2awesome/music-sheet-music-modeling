@@ -49,7 +49,7 @@ def main():
                             max_len=max_len, 
                             out_categories=len(train_dataset.get_i2w()), w2i=w2i, i2w=i2w, model_name=model_name, out_dir=out_dir)
     
-    # wandb_logger = WandbLogger(project='ICDAR 2024', group=f"{corpus_name}", name=f"{model_name}", log_model=False)
+    wandb_logger = WandbLogger(project='NEXT_SMT')
 
     early_stopping = EarlyStopping(monitor=metric_to_watch, min_delta=0.01, patience=5, mode="min", verbose=True)
     
@@ -60,10 +60,9 @@ def main():
     # trainer = Trainer(max_epochs=5000, check_val_every_n_epoch=5, logger=wandb_logger, callbacks=[checkpointer, early_stopping])
     trainer = Trainer(
         max_epochs=5000, 
-        check_val_every_n_epoch=5, 
+        check_val_every_n_epoch=10, logger=wandb_logger,
         callbacks=[checkpointer, early_stopping],
         strategy='ddp_find_unused_parameters_true'
-
     )
     
     trainer.fit(model, train_dataloader, val_dataloader)

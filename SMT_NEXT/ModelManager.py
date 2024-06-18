@@ -194,9 +194,9 @@ class SMT(SequentialTransformer):
             print(f"[Prediction] - {predtoshow}")
             print(f"[GT] - {gttoshow}")
 
-        self.log('val_CER', cer, prog_bar=True)
-        self.log('val_SER', ser, prog_bar=True)
-        self.log('val_LER', ler, prog_bar=True)
+        self.log('val_CER', cer, prog_bar=True, sync_dist=True)
+        self.log('val_SER', ser, prog_bar=True, sync_dist=True)
+        self.log('val_LER', ler, prog_bar=True, sync_dist=True)
 
         self.valpredictions = []
         self.valgts = []
@@ -205,122 +205,16 @@ class SMT(SequentialTransformer):
 
     def on_test_epoch_end(self):
         cer, ser, ler = compute_poliphony_metrics(self.valpredictions, self.valgts)
+        self.log('loss', sync_dist=True)
 
-        self.log('test_CER', cer)
-        self.log('test_SER', ser)
-        self.log('test_LER', ler)
+        # self.log('test_CER', cer)
+        # self.log('test_SER', ser)
+        # self.log('test_LER', ler)
 
         self.valpredictions = []
         self.valgts = []
 
         return ser
-
-class LighntingE2EModelUnfolding(L.LightningModule):
-    def __init__(self, model, blank_idx, i2w, output_path) -> None:
-        super(LighntingE2EModelUnfolding, self).__init__()
-        self.model = model
-        self.loss = nn.CTCLoss(blank=blank_idx)
-        self.blank_idx = blank_idx
-        self.i2w = i2w
-        self.accum_ed = 0
-        self.accum_len = 0
-        
-        self.dec_val_ex = []
-        self.gt_val_ex = []
-
-        self.out_path = output_path
-
-        self.save_hyperparameters()
-
-    def forward(self, input):
-        return self.model(input)
-    
-    def configure_optimizers(self):
-        return torch.optim.Adam(self.model.parameters(), lr=1e-4)
-
-    def training_step(self, train_batch, batch_idx):
-         X_tr, Y_tr, L_tr, T_tr = train_batch
-         predictions = self.forward(X_tr)
-         loss = self.loss(predictions, Y_tr, L_tr, T_tr)
-         self.log('loss', loss, on_epoch=True, batch_size=1, prog_bar=True)
-         return loss
-
-    def compute_prediction(self, batch):
-        X, Y, _, _ = batch
-        pred = self.forward(X)
-        pred = pred.permute(1,0,2).contiguous()
-        pred = pred[0]
-        out_best = torch.argmax(pred,dim=1)
-        out_best = [k for k, g in groupby(list(out_best))]
-        decoded = []
-        for c in out_best:
-            if c.item() != self.blank_idx:
-                decoded.append(c.item())
-        
-        decoded = [self.i2w[tok] for tok in decoded]
-        gt = [self.i2w[int(tok.item())] for tok in Y[0]]
-
-        return decoded, gt
-
-    def validation_step(self, val_batch, batch_idx):
-        dec, gt = self.compute_prediction(val_batch)
-        
-        dec = "".join(dec)
-        dec = dec.replace("<t>", "\t")
-        dec = dec.replace("<b>", "\n")
-        dec = dec.replace("<s>", " ")
-
-        gt = "".join(gt)
-        gt = gt.replace("<t>", "\t")
-        gt = gt.replace("<b>", "\n")
-        gt = gt.replace("<s>", " ")
-
-        self.dec_val_ex.append(dec)
-        self.gt_val_ex.append(gt)
-
-    def on_validation_epoch_end(self):        
-        
-        cer, ser, ler = compute_poliphony_metrics(self.dec_val_ex, self.gt_val_ex)
-
-        self.log('val_CER', cer)
-        self.log('val_SER', ser)
-        self.log('val_LER', ler)
-
-        return ser
-
-    def test_step(self, test_batch, batch_idx):
-        dec, gt = self.compute_prediction(test_batch)
-        
-        dec = "".join(dec)
-        dec = dec.replace("<t>", "\t")
-        dec = dec.replace("<b>", "\n")
-        dec = dec.replace("<s>", " ")
-
-        gt = "".join(gt)
-        gt = gt.replace("<t>", "\t")
-        gt = gt.replace("<b>", "\n")
-        gt = gt.replace("<s>", " ")
-
-        self.dec_val_ex.append(dec)
-        self.gt_val_ex.append(gt)
-    
-    def on_test_epoch_end(self) -> None:
-        cer, ser, ler = compute_poliphony_metrics(self.dec_val_ex, self.gt_val_ex)
-
-        self.log('val_CER', cer)
-        self.log('val_SER', ser)
-        self.log('val_LER', ler)
-
-        self.gt_val_ex = []
-        self.dec_val_ex = []
-
-        return ser
-
-def get_model(maxwidth, maxheight, in_channels, out_size, blank_idx, i2w, model_name, output_path):
-    model = get_rcnn_model(maxwidth, maxheight, in_channels, out_size)
-    lighningModel = LighntingE2EModelUnfolding(model=model, blank_idx=blank_idx, i2w=i2w, output_path=output_path)
-    summary(lighningModel, input_size=([1, in_channels, maxheight, maxwidth]))
-    return lighningModel, model
 
     
 def get_SMT(in_channels, max_height, max_width, max_len, out_categories, w2i, i2w, out_dir, model_name=None):
@@ -328,7 +222,7 @@ def get_SMT(in_channels, max_height, max_width, max_len, out_categories, w2i, i2
     model = SMT(in_channels=in_channels, maxh=32, maxw=128, 
                 maxlen=max_len+1, out_categories=out_categories, 
                 padding_token=0, w2i=w2i, i2w=i2w, out_dir=out_dir).to(device)
-    
+    # model = torch.compile(model)
     #with torch.no_grad():
     #    print(max_height, max_width, max_len)
     #    _ = model(torch.randn((1,1,max_height,max_width), device=device), torch.randint(low=0, high=100,size=(1,max_len), device=device).long())

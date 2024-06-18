@@ -6,6 +6,8 @@ SMT_NEXT/weights
 
 SMT_NEXT/Data/GrandStaff/grandstaff_dataset
 SMT_NEXT/Data/GrandStaff/grandstaff.tgz
+SMT_NEXT/wandb
+SMT_NEXT/lighting_logs
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
