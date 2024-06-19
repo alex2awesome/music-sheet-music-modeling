@@ -49,11 +49,11 @@ class SequentialTransformer(L.LightningModule):
     def __init__(self, maxh, maxw, maxlen, out_categories, padding_token, in_channels, w2i, i2w, out_dir, d_model=256, dim_ff=256, num_dec_layers=8, encoder_type="NexT", swin_image_size=(256,800)) -> None:
         super().__init__()
         self.encoder_type = encoder_type
-        print(swin_image_size)
         if encoder_type == "NexT":
             self.encoder = ConvNextEncoder(in_chans=in_channels, depths=[3,3,9], dims=[64, 128, 256])
         else:
             self.encoder = Encoder(in_channels=in_channels)
+        
 
         self.decoder = Decoder(d_model, dim_ff, num_dec_layers, maxlen, out_categories)
         
@@ -98,7 +98,8 @@ class SequentialTransformer(L.LightningModule):
     def forward_encoder(self, x):
         if self.encoder_type == "Swin":
             return self.encoder(x).last_hidden_state
-        return self.encoder(x)
+        result = self.encoder(x)
+        return result
     
     def forward_decoder(self, encoder_output, last_preds, cache=None):
         b, c, h, w = encoder_output.size()

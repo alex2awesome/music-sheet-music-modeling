@@ -12,7 +12,7 @@ class PositionalEncoding1D(nn.Module):
         self.len_max = len_max
         self.dim = dim
         self.pe = torch.zeros((1, dim, len_max), device=torch.device('cuda' if torch.cuda.is_available() else 'cpu'), requires_grad=False)
-
+        
         div = torch.exp(-torch.arange(0., dim, 2) / dim * torch.log(torch.tensor(10000.0))).unsqueeze(1)
         l_pos = torch.arange(0., len_max)
         self.pe[:, ::2, :] = torch.sin(l_pos * div).unsqueeze(0)

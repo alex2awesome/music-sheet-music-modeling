@@ -1,0 +1,36 @@
+Current directory: /pool001/spangher/music-sheet-music-modeling/SMT_NEXT
+Listing files:
+total 180
+-rw-rw-r--  1 spangher spangher 57887 Jun 14 12:39 black_liliana_test.jpg
+drwxrwxr-x  4 spangher spangher    58 Jun 14 16:20 config
+drwxrwxr-x  3 spangher spangher    32 Jun 17 13:24 Data
+drwxrwxr-x  3 spangher spangher    97 Jun 14 16:34 data_augmentation
+-rw-rw-r--  1 spangher spangher  7488 Jun 17 21:40 data.py
+-rw-rw-r--  1 spangher spangher   113 Jun 19 02:27 error_55489293.txt
+-rw-rw-r--  1 spangher spangher   331 Jun 19 02:55 error_55489389.txt
+-rw-rw-r--  1 spangher spangher   213 Jun 19 02:56 error_55489391.txt
+-rw-rw-r--  1 spangher spangher  3328 Jun 17 21:40 eval_functions.py
+-rw-rw-r--  1 spangher spangher  1707 Jun 18 16:47 GenerateDatasetTXT.py
+-rw-rw-r--  1 spangher spangher   485 Jun 16 15:07 GrandStaffDatasetFlatten.py
+-rw-rw-r--  1 spangher spangher   572 Jun 18 15:40 image_dim.py
+drwxrwxr-x 11 spangher spangher   199 Jun 17 23:25 lightning_logs
+-rw-rw-r--  1 spangher spangher   342 Jun 16 14:50 ListDataTest.py
+-rw-r--r--  1 spangher spangher 15961 Jun 18 16:13 maj3_up_m-121-124.jpg
+-rw-r--r--  1 spangher spangher   732 Jun 18 16:13 maj3_up_m-121-124.krn
+drwxrwxr-x  3 spangher spangher   143 Jun 17 21:42 model
+-rw-rw-r--  1 spangher spangher 10140 Jun 19 02:28 ModelManager.py
+-rw-r--r--  1 spangher spangher 10788 Jun 18 00:58 original_m-0-5.jpg
+-rw-r--r--  1 spangher spangher   399 Jun 18 00:58 original_m-0-5.krn
+drwxrwxr-x  4 spangher spangher    39 Jun 14 16:36 out
+-rw-rw-r--  1 spangher spangher     0 Jun 19 02:27 output_55489293.txt
+-rw-rw-r--  1 spangher spangher  2143 Jun 19 02:55 output_55489389.txt
+-rw-rw-r--  1 spangher spangher    88 Jun 19 02:56 output_55489391.txt
+-rw-rw-r--  1 spangher spangher   508 Jun 18 00:59 prediction.krn
+drwxrwxr-x  2 spangher spangher   157 Jun 18 16:10 __pycache__
+-rwxrwxr-x  1 spangher spangher  2796 Jun 18 15:18 train.py
+-rw-rw-r--  1 spangher spangher   445 Jun 19 02:55 train.sbatch
+-rw-rw-r--  1 spangher spangher  2467 Jun 18 16:14 transcribe_single_score.py
+-rw-rw-r--  1 spangher spangher  1700 Jun 14 16:48 utils.py
+drwxrwxr-x  2 spangher spangher   146 Jun 17 21:40 vocab
+drwxrwxr-x  9 spangher spangher  4096 Jun 18 17:31 wandb
+drwxrwxr-x  3 spangher spangher    32 Jun 17 23:26 weights

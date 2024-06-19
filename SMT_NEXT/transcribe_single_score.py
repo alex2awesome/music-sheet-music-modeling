@@ -14,7 +14,7 @@ def main(stage=None, data_path=None, corpus_name=None, model_name=None, metric_t
 
     device=torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-    img = cv2.imread("original_m-0-5.jpg", 3)
+    img = cv2.imread("maj3_up_m-121-124.jpg", 3)
     
     if img.shape[1] > 3056:
         width = int(np.ceil(3056 * 0.85))
@@ -24,6 +24,7 @@ def main(stage=None, data_path=None, corpus_name=None, model_name=None, metric_t
         height = int(np.ceil(img.shape[0] * 0.85))
 
     img = cv2.resize(img, (width, height))
+    print("Image Dimensions: ", width, height)
     
     transform = transforms.Compose(
         [transforms.ToPILImage(),
@@ -42,6 +43,7 @@ def main(stage=None, data_path=None, corpus_name=None, model_name=None, metric_t
     encoder_output = model.forward_encoder(tensor_img.unsqueeze(0).to(device))
     predicted_sequence = torch.from_numpy(np.asarray([w2i['<bos>']])).to(device).unsqueeze(0)
     cache = None
+
 
     with torch.no_grad():
         for i in progress.track(range(2048)):

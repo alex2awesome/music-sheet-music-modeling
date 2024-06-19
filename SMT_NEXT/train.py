@@ -36,19 +36,20 @@ def main():
 
     w2i, i2w = train_dataset.get_dictionaries()
 
-    train_dataloader = DataLoader(train_dataset, batch_size=1, num_workers=20, collate_fn=batch_preparation_img2seq, shuffle=True)
-    val_dataloader = DataLoader(val_dataset, batch_size=1, num_workers=20, collate_fn=batch_preparation_img2seq)
-    test_dataloader = DataLoader(test_dataset, batch_size=1, num_workers=20, collate_fn=batch_preparation_img2seq)
+    train_dataloader = DataLoader(train_dataset, batch_size=1, num_workers=40, collate_fn=batch_preparation_img2seq, shuffle=True)
+    val_dataloader = DataLoader(val_dataset, batch_size=1, num_workers=40, collate_fn=batch_preparation_img2seq)
+    test_dataloader = DataLoader(test_dataset, batch_size=1, num_workers=40, collate_fn=batch_preparation_img2seq)
 
     max_height, max_width = train_dataset.get_max_hw()
     max_len = train_dataset.get_max_seqlen()
-    print(max_height, max_width, max_len)
+    
 
     model = get_SMT(in_channels=1,
                             max_height=max_height, max_width=max_width, 
                             max_len=max_len, 
                             out_categories=len(train_dataset.get_i2w()), w2i=w2i, i2w=i2w, model_name=model_name, out_dir=out_dir)
-    
+
+    # model = torch.compile(model)
     wandb_logger = WandbLogger(project='NEXT_SMT')
 
     early_stopping = EarlyStopping(monitor=metric_to_watch, min_delta=0.01, patience=5, mode="min", verbose=True)

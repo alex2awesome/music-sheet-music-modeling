@@ -13,7 +13,7 @@ def get_image_dimensions(image_path):
     return width, height
 
 # Example usage
-image_path = 'Data/GrandStaff/grandstaff_dataset/piano-sonatas/sonata28-4/min3_up_m-169-173.jpg'
+image_path = 'original_m-0-5.jpg'
 try:
     width, height = get_image_dimensions(image_path)
     print(f'The dimensions of the image are {width}x{height}')
