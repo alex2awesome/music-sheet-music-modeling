@@ -1,6 +1,8 @@
+
 import cv2
-from Generator.MusicSynthGen import VerovioGenerator
+
 from data_augmentation.data_augmentation import augment
+from Generator.MusicSynthGen import VerovioGenerator
 
 generator = VerovioGenerator("Data/GrandStaff/partitions_grandstaff/types/train.txt", fixed_number_systems=True, tokenization_method="bekern")
 

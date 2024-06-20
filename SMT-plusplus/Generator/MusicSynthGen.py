@@ -28,7 +28,7 @@ def rint(start, end):
 def erase_numbers_in_tokens_with_equal(tokens):
        return [re.sub(r'(?<=\=)\d+', '', token) for token in tokens]
 
-def load_data_from_krn(path, base_folder="GrandStaff", krn_type="ekrn", tokenization_mode="standard"):
+def load_data_from_krn(path, base_folder="GrandStaff", krn_type="bekrn", tokenization_mode="standard"):
     y = []
     with open(path) as datafile:
         lines = datafile.readlines()
