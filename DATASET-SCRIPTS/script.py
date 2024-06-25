@@ -1,11 +1,14 @@
 # runs yt-dlp to extract mp3 for a given set of links
+# NOTE: need to download ffmpeg separately for yt-dlp to download as mp3 in some cases
+# NOTE: if using Windows system and wget is not installed then see aria_amt_set_up() / for ref: https://learn.microsoft.com/en-us/answers/questions/1167673/how-to-use-wget-command-on-windows-(for-recursive
 
-import subprocess, sys, yt_dlp, json, ast
+import subprocess
+import os, sys
+import json, ast
 
-# commands = sys.argv[1:]
-# arg = "https://www.youtube.com/watch?v=20Gb0JcviRA"
-# links = str(open("links.txt", "r")).split("\n")
-file_path = ""
+FILE_PATH = ""
+MODEL_NAME = "medium-stacked"
+CHECKPOINT_NAME = f"piano-medium-stacked-1.0"
 
 def parse_args():
     try:
@@ -14,21 +17,42 @@ def parse_args():
         print("ERROR: file not recognized")
         exit()
 
+def yt_dlp_set_up():
+    try:
+        os.system("pip install yt-dlp")
+    except:
+        print("yt-dlp install failed")
+        exit()
+
 def download_from_txt_using_bash(text_file):
     file = open(text_file, "r")
     line = file.readline()
     while line:
-        result = subprocess.run(["bash", "script.sh", line], shell=True, capture_output=True)
+        result = subprocess.run(["bash", "yt-dlp.sh", line], shell=True, capture_output=True)
         print("downloaded audio " + line)
         line = file.readline()
 
-def load_json(json_file):
+def load_json(json_file, path="yt-links.txt"):
     links = []
+    if os.path.isfile(path):
+        run_again = input("rewrite links text file? (y/n)")
+        if (run_again.lower() != "y"):
+            file = open(path)
+            links = file.readlines()
+            file.close()
+            return links
+    try:
+        txt_file = open(path, "x")
+    except:
+        print("rewriting file...")
+        txt_file = open(path, "w")
     with open(json_file) as file:
         for line in file:
             try:
-                links.append(json.loads(line).get("url"))
-                print(json.loads(line).get("url"))
+                link = json.loads(line).get("url")
+                links.append(link)
+                txt_file.write(link)
+                print(link)
             except:
                 print("ERROR: json line fail")
     return links
@@ -53,10 +77,57 @@ def download_from_json_using_bash(yt_links, start_index, end_index):
         result = subprocess.run(["bash", "script.sh", yt_links[i]], shell=True, capture_output=True)
         print("downloaded audio " + yt_links[i])
 
+def download_set_from_json(yt_links, start_index, end_index):
+    print("downloading links..")
+    for i in range(start_index, end_index):
+        try:
+            x = yt_links[i]
+        except:
+            print("out of range")
+            break
+        os.system(f"yt-dlp --extract-audio --audio-format mp3 --no-playlist --audio-quality 0 {yt_links[i]} -o audio-{i}.mp3")
+        print("downloaded audio for video: " + yt_links[i])
+
+def download_from_json(yt_links, i):
+    print("downloading links..")
+    try:
+        x = yt_links[i]
+    except:
+        print("out of range")
+        return
+    os.system(f"yt-dlp --extract-audio --audio-format mp3 --no-playlist --audio-quality 0 {yt_links[i]} -o audio-{i}.mp3")
+    print("downloaded audio for video: " + yt_links[i])
+
+def aria_amt_set_up():
+    install = input("install aria-amt? (y/n) ")
+    if (install.lower() == "y"):
+        os.system("pip uninstall aria-amt")
+        os.system("pip install git+https://github.com/EleutherAI/aria-amt.git")
+
+    install = input("download model weights? (y/n) ")
+    if (install.lower() == "y"):
+        if not os.path.isfile(f"{CHECKPOINT_NAME}.safetensors"):
+            # NOTE: uncomment or comment depending on system
+            # os.system(f"wget https://storage.googleapis.com/aria-checkpoints/amt/{CHECKPOINT_NAME}.safetensors")
+            subprocess.run(["powershell", f"wget https://storage.googleapis.com/aria-checkpoints/amt/{CHECKPOINT_NAME}.safetensors"])
+        else:
+            print(f"Checkpoint already exists at {CHECKPOINT_NAME} - skipping download")
+
+def run_aria_amt(path, directory="."):
+    print(os.path.isfile(f"{CHECKPOINT_NAME}.safetensors"))
+    # os.system(f"aria-amt transcribe {MODEL_NAME} {CHECKPOINT_NAME}.safetensors -load_path {path} -save_dir {directory} -bs 1 compile q8")
+    # TODO? aria-amt transcribe medium-stacked piano-medium-stacked-1.0.safetensors -load_path "audio-0.mp3" -save_dir "." -bs 1
+    subprocess.run(["powershell", f"aria-amt transcribe {MODEL_NAME} {CHECKPOINT_NAME}.safetensors -load_path {path} -save_dir {directory} -bs 1 compile q8"])
+
+def remove_file(i):
+    os.system(f"rm audio-{i}.mp3")
+
 def main():
-    file_path = parse_args()
-    links = load_json(file_path, 5)
-    download_from_json_using_bash(links, 0, 2)
+    FILE_PATH = parse_args()
+    links = load_json(FILE_PATH, 5)
+    download_from_json(links, 0)
+    aria_amt_set_up()
+    run_aria_amt("audio-0.mp3")
 
 if __name__ == "__main__":
     main()
