@@ -1,5 +1,3 @@
-# WORKING COPY
-
 # runs yt-dlp to extract mp3 for a given set of links
 # NOTE: need to download ffmpeg separately for yt-dlp to download as mp3 in some cases
 # NOTE: if using Windows system and wget is not installed then see aria_amt_set_up() / for ref: https://learn.microsoft.com/en-us/answers/questions/1167673/how-to-use-wget-command-on-windows-(for-recursive
@@ -27,34 +25,12 @@ def yt_dlp_set_up():
         print("yt-dlp install failed")
         exit()
 
-def download_from_txt_using_bash(text_file):
-    file = open(text_file, "r")
-    line = file.readline()
-    while line:
-        result = subprocess.run(["bash", "yt-dlp.sh", line], shell=True, capture_output=True)
-        print("downloaded audio " + line)
-        line = file.readline()
-
-def load_json(json_file, path="yt-links.txt"):
+def load_json(json_file):
     links = []
-    # if os.path.isfile(path):
-    #     run_again = input("rewrite links text file? (y/n)")
-    #     if (run_again.lower() != "y"):
-    #         file = open(path)
-    #         links = file.readlines()
-    #         file.close()
-    #         return links
-    try:
-        txt_file = open(path, "x")
-    except:
-        print("rewriting file...")
-        txt_file = open(path, "w")
     with open(json_file) as file:
         for line in file:
             try:
                 link = json.loads(line).get("url")
-                links.append(link + "\n")
-                txt_file.write(link)
                 print(link)
             except:
                 print("ERROR: json line fail")
@@ -73,12 +49,6 @@ def load_json_partial(json_file, lines):
             except:
                 print("ERROR: json line fail")
     return links
-
-def download_from_json_using_bash(yt_links, start_index, end_index):
-    print("downloading links..")
-    for i in range(start_index, end_index):
-        result = subprocess.run(["bash", "script.sh", yt_links[i]], shell=True, capture_output=True)
-        print("downloaded audio " + yt_links[i])
 
 def download_set_from_json(yt_links, start_index, end_index):
     print("downloading links..")
@@ -114,8 +84,8 @@ def aria_amt_set_up():
     if (install.lower() == "y"):
         if not os.path.isfile(f"{CHECKPOINT_NAME}.safetensors"):
             # NOTE: uncomment or comment depending on system
-            # os.system(f"wget https://storage.googleapis.com/aria-checkpoints/amt/{CHECKPOINT_NAME}.safetensors")
-            subprocess.run(["powershell", f"wget https://storage.googleapis.com/aria-checkpoints/amt/{CHECKPOINT_NAME}.safetensors"])
+            os.system(f"wget https://storage.googleapis.com/aria-checkpoints/amt/{CHECKPOINT_NAME}.safetensors")
+            # subprocess.run(["powershell", f"wget https://storage.googleapis.com/aria-checkpoints/amt/{CHECKPOINT_NAME}.safetensors"])
         else:
             print(f"Checkpoint already exists at {CHECKPOINT_NAME} - skipping download")
 
@@ -132,9 +102,13 @@ def main():
     START = 0
     END = len(links) # not included
 
+    # START = int(input("START: "))
+    # END = int(input("END: "))
+
     aria_amt_set_up()
     yt_dlp_set_up()
-    
+    os.system(f"echo start {START} > save.txt")
+
     if not os.path.isfile(f"{CHECKPOINT_NAME}.safetensors"):
         print(f"{CHECKPOINT_NAME}.safetensors did not install")
         exit()
@@ -145,7 +119,9 @@ def main():
         try:
             download_from_json(links, i)
             run_aria_amt(f"audio-{i}.mp3")
-            print(f"midi downloaded successfully #{i}")
+            print(f"midi downloaded successfully #{i}") # in case program crashes, can run from where last left off
+            with open("save.txt") as save:
+                save.write(f"downloaded {i}\n")
         except:
             print("error occurred")
 
