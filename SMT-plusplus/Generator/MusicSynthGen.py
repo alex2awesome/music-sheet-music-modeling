@@ -32,6 +32,7 @@ def load_data_from_krn(path, base_folder="GrandStaff", krn_type="bekrn", tokeniz
     y = []
     with open(path) as datafile:
         lines = datafile.readlines()
+        lines = lines[:1000] #cut lines to go faster
         for line in progress.track(lines):
             excerpt = line.replace("\n", "")
             try:
@@ -61,13 +62,14 @@ def load_data_from_krn(path, base_folder="GrandStaff", krn_type="bekrn", tokeniz
 
 class VerovioGenerator():
     def __init__(self, gt_samples_path, textures_path="Generator/paper_textures", fixed_number_systems=False, tokenization_method="standard") -> None:
+        self.textures = [os.path.join(textures_path, f) for f in os.listdir(textures_path) if os.path.isfile(os.path.join(textures_path, f))]
         self.tk = verovio.toolkit()
         verovio.enableLog(verovio.LOG_OFF)
         self.fixed_systems = fixed_number_systems
         self.tokenization_method = tokenization_method
         self.beats = self.load_beats(gt_samples_path)
         self.title_generator = RandomSentence()
-        self.textures = [os.path.join(textures_path, f) for f in os.listdir(textures_path) if os.path.isfile(os.path.join(textures_path, f))]
+        
     
     def load_beats(self, path):
         """Load beats from the provided path."""
@@ -216,20 +218,20 @@ class VerovioGenerator():
                        reduce_ratio=0.5, random_margins=True, check_generated_systems=True, 
                        cut_height=True, add_texture=False, 
                        include_title=False, include_author=False, page_size=None):
-        
+        print("Gen Score: 1")
         n_sys_generate = random.randint(1, num_sys_gen)
         if self.fixed_systems:
             n_sys_generate = num_sys_gen
-        
+        print("Gen Score: 2")
         margins = None
 
         if random_margins:
             margins = [rint(25, 200) for _ in range(4)]
-        
+        print("Gen Score: 3")
         generated_systems = np.inf
         while generated_systems != n_sys_generate:
             length = 0
-
+            print("Gen Score: 4")
             while length < num_sys_gen:
                 beat = random.choice(list(self.beats.keys()))
                 systems = self.beats[beat]
