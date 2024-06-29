@@ -125,15 +125,12 @@ def run_aria_amt(path, directory="."):
 def remove_file(i):
     os.system(f"rm audio-{i}.mp3")
 
-def main():
+def download_all(START, END):
     FILE_PATH = parse_args()
     links = load_json(FILE_PATH)
 
     START = 0
     END = len(links) # not included
-
-    aria_amt_set_up()
-    yt_dlp_set_up()
     
     if not os.path.isfile(f"{CHECKPOINT_NAME}.safetensors"):
         print(f"{CHECKPOINT_NAME}.safetensors did not install")
@@ -148,6 +145,20 @@ def main():
             print(f"midi downloaded successfully #{i}")
         except:
             print("error occurred")
+
+def main():
+    START = 0
+    END = len(links)
+
+    if (int(sys.argv[3]) == 0):
+        aria_amt_set_up()
+        yt_dlp_set_up()
+
+    if (int(sys.argv[2]) == 0):
+        START = int(input("START: "))
+        END = int(input("END: "))
+    else:
+        download_all(START, END)
 
 if __name__ == "__main__":
     main()
