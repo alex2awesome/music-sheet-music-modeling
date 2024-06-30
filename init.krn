@@ -1,0 +1,63 @@
+**kern	**kern
+*clefF4	*clefG2
+*k[b-e-a-d-g-c-]	*k[b-e-a-d-g-c-]
+*M128	*M128
+=-	=-
+1·.·r	16·BBB·-·j·LL
+.	16·DD
+.	16·FF
+.	16·AA·-·j·JJ
+.	16·BB·-·j·LL
+.	16·D·JJ
+.	16·F·LL
+.	16·A·-·j
+.	16·B·-·j
+.	16·d
+.	16·f
+.	16·a·-·JJ
+.	16·b·-·LL
+.	16·dd
+.	16·ff
+.	16·dd
+.	16·b·-
+.	16·dd·JJ
+.	16·ff·LL
+.	16·dd
+.	16·aa·-
+.	16·ff
+.	16·dd
+.	16·ff·JJ
+=	=
+4·r	4·aa·-
+8·r	8·r
+8·C·-·L	4·r
+8·C·-	.
+8·C·-·J	8·r
+4·BB·-	4·r
+8·r	8·r
+4·r	8·dd 8·ff·L
+.	8·dd 8·ff
+8·r	8·dd 8·ff·J
+=	=
+4·r	4·ff 4·aa·-
+8·r	8·r
+8·C·-·L	4·r
+8·C·-	.
+8·C·-·J	8·r
+4·BB·-	4·r
+8·r	8·r
+4·r	8·d 8·f·L
+.	8·d 8·f
+8·r	8·d 8·f·J
+=	=
+4·r	4·f 4·a·-
+8·r	8·r
+8·CC·-·L	4·r
+8·CC·-	.
+8·CC·-·J	8·r
+4·.·BBB·-	2·.·r
+8·CC·-·L	.
+8·CC·-	.
+8·CC·-·J	.
+=	=
+*-	*-

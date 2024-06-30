@@ -28,8 +28,9 @@ def levenshtein(a,b):
 
 @logger.catch
 def check_and_retrieveVocabulary(YSequences, pathOfSequences, nameOfVoc, save=True):
-    w2ipath = pathOfSequences + "/" + nameOfVoc + "w2i.npy"
-    i2wpath = pathOfSequences + "/" + nameOfVoc + "i2w.npy"
+    root_dir = os.path.dirname(os.path.abspath(__file__))
+    w2ipath = os.path.join(root_dir, pathOfSequences + "/" + nameOfVoc + "w2i.npy") 
+    i2wpath = os.path.join(root_dir, pathOfSequences + "/" + nameOfVoc + "i2w.npy") 
 
     w2i = []
     i2w = []

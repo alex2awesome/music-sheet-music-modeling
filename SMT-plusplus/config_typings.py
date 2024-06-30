@@ -40,7 +40,7 @@ class SMTConfig:
     d_model: int
     dim_ff: int
     num_dec_layers: int
-    encoder_type: int
+    encoder_type: str
     max_height: int
     max_width: int
     max_len: int

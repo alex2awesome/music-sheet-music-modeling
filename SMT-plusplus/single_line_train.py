@@ -3,7 +3,7 @@ import torch
 import hydra
 from SMT import SMT
 from config_typings import Config
-import wandb
+
 from data import PretrainingLinesDataset
 from lightning.pytorch import Trainer
 from lightning.pytorch.callbacks import ModelCheckpoint
@@ -16,8 +16,6 @@ torch.set_float32_matmul_precision('high')
 def main(config:Config):
 
     print(config)
-    wandb.login()
-
     data_module = PretrainingLinesDataset(config=config.data)
     
     train_dataset = data_module.train_dataset
@@ -25,11 +23,11 @@ def main(config:Config):
 
     model = SMT(config=config.model_setup, w2i=w2i, i2w=i2w)
 
-    wandb_logger = WandbLogger(project='FP_SMT', group=f"SMTppNEXT", name=f"GrandStaff", log_model=True)
+    wandb_logger = WandbLogger(project='FP_SMT', group=f"{config.metadata.corpus_name}", name=f"{config.metadata.model_name}", log_model=False)
 
     early_stopping = EarlyStopping(monitor=config.experiment.metric_to_watch, min_delta=0.01, patience=5, mode="min", verbose=True)
     
-    checkpointer = ModelCheckpoint(dirpath=f"weights/SMTppNEXT/", filename=f"SMTppNEXT_pretraining", 
+    checkpointer = ModelCheckpoint(dirpath=f"weights/{config.metadata.corpus_name}/", filename=f"{config.metadata.model_name}_pretraining", 
                                    monitor=config.experiment.metric_to_watch, mode='min',
                                    save_top_k=1, verbose=True)
 

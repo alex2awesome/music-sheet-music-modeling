@@ -2,8 +2,4 @@ defaults:
   - data: grandstaff_bekern
   - model_setup: SMT_Next
   - experiment: systems-pretraining
-  - _self_
-
-metadata:
-  corpus_name: "example_corpus"
-  model_name: "example_model"
+  - cl: base_cl
