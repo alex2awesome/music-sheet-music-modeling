@@ -72,7 +72,7 @@ def download_from_json(yt_links, i):
     except:
         print("out of range")
         return
-    if (os.path.isfile(f"audio-{i}.mp3")):
+    if not os.path.isfile(f"audio-{i}.mp3"):
         os.system(f"yt-dlp --extract-audio --audio-format mp3 --no-playlist --audio-quality 0 {yt_links[i]} -o audio-{i}.mp3")
     else:
         print("already downloaded: " + yt_links[i])
