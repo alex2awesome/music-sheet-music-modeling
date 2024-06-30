@@ -19,7 +19,7 @@ def parse_args():
         exit()
 
 def yt_dlp_set_up():
-    if input("yt-dlp download? (y/n) ") == "y":
+    if input("yt-dlp download? (y/n) ").lower() == "y":
         try:
             os.system("pip install yt-dlp")
         except:
@@ -117,7 +117,7 @@ def main():
 
     aria_amt_set_up()
     yt_dlp_set_up()
-    os.system(f"echo start {START} > save.txt")
+    # os.system(f"echo start {START} > save.txt")
 
     if not os.path.isfile(f"{CHECKPOINT_NAME}.safetensors"):
         print(f"{CHECKPOINT_NAME}.safetensors did not install")
@@ -129,10 +129,12 @@ def main():
     for i in range(START, END):
         try:
             download_from_json(links, i)
-            run_aria_amt(f"audio-{i}.mp3")
+            run_aria_amt(f"audio-{i}.mp3", "./midi")
             print(f"midi downloaded successfully #{i}") # in case program crashes, can run from where last left off
-            with open("save.txt") as save:
-                save.write(f"downloaded {i}\n")
+            os.system(f"rm audio-{i}.mp3")
+            print(f"audio-{i}.mp3 removed")
+            # with open("save.txt") as save:
+            #     save.write(f"downloaded {i}\n")
         except:
             print("error occurred")
 
