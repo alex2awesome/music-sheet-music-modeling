@@ -32,23 +32,26 @@ def load_json(json_file):
         for line in file:
             try:
                 link = json.loads(line).get("url")
+                links.append(link)
                 print(link)
             except:
                 print("ERROR: json line fail")
     return links
 
-def load_json_partial(json_file, lines):
+def load_json_partial(json_file, start, end):
     links = []
+    i = 0
     with open(json_file) as file:
         for line in file:
-            if lines == 0:
+            if i == end:
                 break
-            try:
-                links.append(json.loads(line).get("url"))
-                print(json.loads(line).get("url"))
-                lines -= 1
-            except:
-                print("ERROR: json line fail")
+            elif i >= start:
+                try:
+                    link = json.loads(line).get("url")
+                    links.append(link)
+                    print(link)
+                except:
+                    print("ERROR: json line fail")
     return links
 
 def download_set_from_json(yt_links, start_index, end_index):
@@ -98,13 +101,19 @@ def remove_file(i):
 
 def main():
     FILE_PATH = parse_args()
-    links = load_json(FILE_PATH)
 
     START = 0
-    END = len(links) # not included
+    END = -1 # not included
 
     # START = int(input("START: "))
     # END = int(input("END: "))
+
+    if END == -1:
+        links = load_json(FILE_PATH)
+        print(links)
+        END = len(links)
+    else:
+        links = load_json_partial(FILE_PATH, START, END)
 
     aria_amt_set_up()
     yt_dlp_set_up()
@@ -113,6 +122,7 @@ def main():
     if not os.path.isfile(f"{CHECKPOINT_NAME}.safetensors"):
         print(f"{CHECKPOINT_NAME}.safetensors did not install")
         exit()
+    
     if not os.path.isdir("midi"):
         os.system("mkdir midi")
 

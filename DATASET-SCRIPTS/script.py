@@ -1,4 +1,4 @@
-# WORKING COPY
+# WORKING COPY, do not run
 
 # runs yt-dlp to extract mp3 for a given set of links
 # NOTE: need to download ffmpeg separately for yt-dlp to download as mp3 in some cases
@@ -35,43 +35,55 @@ def download_from_txt_using_bash(text_file):
         print("downloaded audio " + line)
         line = file.readline()
 
-def load_json(json_file, path="yt-links.txt"):
+def load_json(json_file):
     links = []
-    # if os.path.isfile(path):
-    #     run_again = input("rewrite links text file? (y/n)")
-    #     if (run_again.lower() != "y"):
-    #         file = open(path)
-    #         links = file.readlines()
-    #         file.close()
-    #         return links
-    try:
-        txt_file = open(path, "x")
-    except:
-        print("rewriting file...")
-        txt_file = open(path, "w")
     with open(json_file) as file:
         for line in file:
             try:
                 link = json.loads(line).get("url")
-                links.append(link + "\n")
-                txt_file.write(link)
                 print(link)
             except:
                 print("ERROR: json line fail")
     return links
 
-def load_json_partial(json_file, lines):
+# def load_json(json_file, path="yt-links.txt"):
+#     links = []
+#     # if os.path.isfile(path):
+#     #     run_again = input("rewrite links text file? (y/n)")
+#     #     if (run_again.lower() != "y"):
+#     #         file = open(path)
+#     #         links = file.readlines()
+#     #         file.close()
+#     #         return links
+#     try:
+#         txt_file = open(path, "x")
+#     except:
+#         print("rewriting file...")
+#         txt_file = open(path, "w")
+#     with open(json_file) as file:
+#         for line in file:
+#             try:
+#                 link = json.loads(line).get("url")
+#                 links.append(link + "\n")
+#                 txt_file.write(link)
+#                 print(link)
+#             except:
+#                 print("ERROR: json line fail")
+#     return links
+
+def load_json_partial(json_file, start, end):
     links = []
+    i = 0
     with open(json_file) as file:
         for line in file:
-            if lines == 0:
+            if i == end:
                 break
-            try:
-                links.append(json.loads(line).get("url"))
-                print(json.loads(line).get("url"))
-                lines -= 1
-            except:
-                print("ERROR: json line fail")
+            elif i >= start:
+                try:
+                    links.append(json.loads(line).get("url"))
+                    print(json.loads(line).get("url"))
+                except:
+                    print("ERROR: json line fail")
     return links
 
 def download_from_json_using_bash(yt_links, start_index, end_index):
@@ -127,10 +139,14 @@ def remove_file(i):
 
 def download_all(START, END):
     FILE_PATH = parse_args()
-    links = load_json(FILE_PATH)
+    links = []
 
-    START = 0
-    END = len(links) # not included
+    if END == -1:
+        links = load_json(FILE_PATH)
+        print(links)
+        END = len(links)
+    else:
+        links = load_json_partial(FILE_PATH, START, END)
     
     if not os.path.isfile(f"{CHECKPOINT_NAME}.safetensors"):
         print(f"{CHECKPOINT_NAME}.safetensors did not install")
@@ -144,11 +160,13 @@ def download_all(START, END):
             run_aria_amt(f"audio-{i}.mp3")
             print(f"midi downloaded successfully #{i}")
         except:
-            print("error occurred")
+            print("error occurred while downloading")
 
 def main():
     START = 0
-    END = len(links)
+    END = -1
+
+    breakpoint()
 
     if (int(sys.argv[3]) == 0):
         aria_amt_set_up()
@@ -157,8 +175,8 @@ def main():
     if (int(sys.argv[2]) == 0):
         START = int(input("START: "))
         END = int(input("END: "))
-    else:
-        download_all(START, END)
+    
+    download_all(START, END)
 
 if __name__ == "__main__":
     main()
