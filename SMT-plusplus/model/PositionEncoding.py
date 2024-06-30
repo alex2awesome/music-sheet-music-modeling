@@ -23,7 +23,7 @@ class PositionalEncoding2D(nn.Module):
         Add 2D positional encoding to x
         x: (B, C, H, W)
         """
-        return x + self.pe[:, :, :x.size(2), :x.size(3)]
+        return x + self.pe[:, :, :x.size(2), :x.size(3)].to(x.device)
 
     def get_pe_by_size(self, h, w, device):
         return self.pe[:, :, :h, :w].to(device)
