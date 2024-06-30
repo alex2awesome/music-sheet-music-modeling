@@ -19,11 +19,12 @@ def parse_args():
         exit()
 
 def yt_dlp_set_up():
-    try:
-        os.system("pip install yt-dlp")
-    except:
-        print("yt-dlp install failed")
-        exit()
+    if input("yt-dlp download? (y/n) ") == "y":
+        try:
+            os.system("pip install yt-dlp")
+        except:
+            print("yt-dlp install failed")
+            exit()
 
 def load_json(json_file):
     links = []
