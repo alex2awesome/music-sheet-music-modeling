@@ -30,12 +30,18 @@ def erase_numbers_in_tokens_with_equal(tokens):
 
 def load_data_from_krn(path, base_folder="GrandStaff", krn_type="bekrn", tokenization_mode="standard"):
     y = []
-    with open(path) as datafile:
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+
+    root_dir = os.path.abspath(os.path.join(current_dir, '..'))
+    partition_path  = os.path.join(root_dir, path)
+    with open(partition_path) as datafile:
         lines = datafile.readlines()
+        lines = lines[:1000] #cut lines to go faster
         for line in progress.track(lines):
             excerpt = line.replace("\n", "")
             try:
-                with open(f"Data/{base_folder}/{'.'.join(excerpt.split('.')[:-1])}.{krn_type}") as krnfile:
+                fp = os.path.join(root_dir, f"Data/{base_folder}/{'.'.join(excerpt.split('.')[:-1])}.{krn_type}")
+                with open(fp) as krnfile:
                     krn_content = krnfile.read()
                     krn = krn_content.replace(" ", " <s> ")
                     krn = krn.replace("\t", " <t> ")
@@ -61,13 +67,14 @@ def load_data_from_krn(path, base_folder="GrandStaff", krn_type="bekrn", tokeniz
 
 class VerovioGenerator():
     def __init__(self, gt_samples_path, textures_path="Generator/paper_textures", fixed_number_systems=False, tokenization_method="standard") -> None:
+        # self.textures = [os.path.join(textures_path, f) for f in os.listdir(textures_path) if os.path.isfile(os.path.join(textures_path, f))]
         self.tk = verovio.toolkit()
         verovio.enableLog(verovio.LOG_OFF)
         self.fixed_systems = fixed_number_systems
         self.tokenization_method = tokenization_method
         self.beats = self.load_beats(gt_samples_path)
         self.title_generator = RandomSentence()
-        self.textures = [os.path.join(textures_path, f) for f in os.listdir(textures_path) if os.path.isfile(os.path.join(textures_path, f))]
+        
     
     def load_beats(self, path):
         """Load beats from the provided path."""
@@ -171,7 +178,7 @@ class VerovioGenerator():
                 length = len(systems)
             
             sequence = random.choice(systems)
-            krnseq = "".join(sequence[:-1]).replace("@", "").replace("<s>", " ").replace("<b>", "\n").replace("<t>", "\t").replace("**ekern", "**kern")
+            krnseq = "".join(sequence[:-1]).replace("@", "").replace("<s>", " ").replace("<b>", "\n").replace("<t>", "\t").replace("**ekern_1.0", "**kern")
             
             self.tk.loadData(krnseq)
             self.tk.setOptions({"pageWidth": 2100, "footer": 'none', 
@@ -255,14 +262,14 @@ class VerovioGenerator():
             preseq += f"!!!OTL:{self.title_generator.sentence()}\n" if include_title else ""
             preseq += f"!!!COM:{names.get_full_name()}\n" if include_author else ""
             
-            krnseq = preseq + "".join(sequence[:-1]).replace("@", "").replace("<s>", " ").replace("<b>", "\n").replace("<t>", "\t").replace("**ekern", "**kern")
-
-            #with open("test.krn", "w") as krnfile:
-            #    krnfile.write(krnseq)
-            #with open("init.krn", "w") as krnfile:
-            #    krnfile.write("".join(random_systems[0]).replace("<s>", " ").replace("<b>", "\n").replace("<t>", "\t").replace("**ekern_1.0", "**kern"))
-            #with open("end.krn", "w") as krnfile:
-            #    krnfile.write("".join(random_systems[-1]).replace("<s>", " ").replace("<b>", "\n").replace("<t>", "\t").replace("**ekern_1.0", "**kern"))   
+            # krnseq = preseq + "".join(sequence[:-1]).replace("@", "").replace("<s>", " ").replace("<b>", "\n").replace("<t>", "\t").replace("**ekern", "**kern")
+            krnseq = preseq + "".join(sequence[:-1]).replace("@", "").replace("<s>", " ").replace("<b>", "\n").replace("<t>", "\t").replace("**ekern_1.0", "**kern")
+            with open("test.krn", "w") as krnfile:
+               krnfile.write(krnseq)
+            with open("init.krn", "w") as krnfile:
+               krnfile.write("".join(random_systems[0]).replace("<s>", " ").replace("<b>", "\n").replace("<t>", "\t").replace("**ekern_1.0", "**kern"))
+            with open("end.krn", "w") as krnfile:
+               krnfile.write("".join(random_systems[-1]).replace("<s>", " ").replace("<b>", "\n").replace("<t>", "\t").replace("**ekern_1.0", "**kern"))   
             
             self.tk.loadData(krnseq)
             

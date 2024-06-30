@@ -175,10 +175,20 @@ class SyntheticOMRDataset(OMRIMG2SEQDataset):
         self.reduce_ratio = reduce_ratio
         self.include_texture = include_texture
         self.tokenization_mode = tokenization_mode
+        self.x, self.y = self._generate_initial_data()
+
+    def _generate_initial_data(self):
+        x_data = []
+        y_data = []
+        for _ in range(self.dataset_len):
+            x, y = self.generator.generate_system()
+            x_data.append(x)
+            y_data.append(y)
+        return x_data, y_data
     
     def __getitem__(self, index):
-        
-        x, y = self.generator.generate_system()
+        x = self.x[index]
+        y = self.y[index]
 
         if self.augment:
             x = augment(x)
@@ -199,10 +209,10 @@ class PretrainingLinesDataset(LightningDataModule):
         self.vocab_name = config.vocab_name
         self.batch_size = batch_size
         self.num_workers = num_workers
-        self.train_dataset = SyntheticOMRDataset(data_path=f"{self.data_path}/train.txt", augment=True, fixed_systems=True, tokenization_mode=config.tokenization_mode)
-        self.val_dataset = SyntheticOMRDataset(data_path=f"{self.data_path}/val.txt", dataset_length=1000, augment=False, fixed_systems=True, tokenization_mode=config.tokenization_mode)
-        self.test_dataset = SyntheticOMRDataset(data_path=f"{self.data_path}/test.txt", dataset_length=1000, augment=False, fixed_systems=True, tokenization_mode=config.tokenization_mode)
-        w2i, i2w = check_and_retrieveVocabulary([self.train_dataset.get_gt(), self.val_dataset.get_gt(), self.test_dataset.get_gt()], "vocab/", f"{self.vocab_name}")#
+        self.train_dataset = SyntheticOMRDataset(data_path=f"{self.data_path}/train.txt", dataset_length=10, augment=True, fixed_systems=True, tokenization_mode=config.tokenization_mode)
+        self.val_dataset = SyntheticOMRDataset(data_path=f"{self.data_path}/val.txt", dataset_length=3, augment=False, fixed_systems=True, tokenization_mode=config.tokenization_mode)
+        self.test_dataset = SyntheticOMRDataset(data_path=f"{self.data_path}/test.txt", dataset_length=3, augment=False, fixed_systems=True, tokenization_mode=config.tokenization_mode)
+        w2i, i2w = check_and_retrieveVocabulary([self.train_dataset.get_gt(), self.val_dataset.get_gt(), self.test_dataset.get_gt()], "vocab", f"{self.vocab_name}")#
     
         self.train_dataset.set_dictionaries(w2i, i2w)
         self.val_dataset.set_dictionaries(w2i, i2w)

@@ -45,8 +45,7 @@ class SMT(L.LightningModule):
         #sys.exit()
         self.worst_loss_image = None
         self.worst_training_loss = -1
-        summary(self, input_size=[(1,1,config.max_height,config.max_width), (1,config.max_len)], 
-                dtypes=[torch.float, torch.long])
+        summary(self, input_size=[(1,1, 2512, 2512), (1, 5512)], dtypes=[torch.float, torch.long])
 
         self.save_hyperparameters()
 
