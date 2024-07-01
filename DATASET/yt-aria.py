@@ -2,7 +2,8 @@
 # to set up, run setup.py
 
 import os, sys, subprocess
-import json, ast, urllib, argparse
+import json, ast, urllib.parse, argparse
+import random
 from tqdm.auto import tqdm
 
 MODEL_NAME = "medium-stacked"
@@ -10,6 +11,7 @@ CHECKPOINT_NAME = f"piano-medium-stacked-1.0"
 START_ID = 0
 END_ID = -1
 FILE_PATH = ""
+MIDI_PATH = "./midi"
 
 def parse_args():
     """
@@ -18,7 +20,8 @@ def parse_args():
     """
     global START_ID
     global END_ID
-    global FILE_PATH 
+    global FILE_PATH
+    global MIDI_PATH
 
     parser = argparse.ArgumentParser(
         prog="yt-aria-script",
@@ -27,12 +30,15 @@ def parse_args():
     parser.add_argument("json")
     parser.add_argument("-s", "--start-idx", type=int)
     parser.add_argument("-e", "--end-idx", type=int)
+    parser.add_argument("-d", "--download-dir", type=str)
     args = parser.parse_args()
     
     if args.start_idx is not None:
         START_ID = args.start_idx
     if args.end_idx is not None:
         END_ID = args.end_idx
+    if args.download_dir is not None:
+        MIDI_PATH = args.download_dir
 
     if os.path.isfile(args.json):
         FILE_PATH = str(args.json)
@@ -40,7 +46,7 @@ def parse_args():
         print("ERROR: json file not recognized")
         exit()
 
-def get_name(name, i, suffix="mp3"):
+def get_name(name, suffix="mp3"):
     """
     Generate a file name using the provided name, index, and suffix.
 
@@ -52,8 +58,7 @@ def get_name(name, i, suffix="mp3"):
     Returns:
     str: The generated file name.
     """
-    return (f"audio-{i}-{name}.{suffix}")
-
+    return (f"audio-{name}.{suffix}")
 
 def load_json(json_file):
     """
@@ -97,7 +102,7 @@ def load_set_from_json(json_file, start_index, end_index):
                 try:
                     link = json.loads(line).get("url")
                     links.append(link)
-                    print(f"loaded #{i}: {link}")
+                    print(f"loaded: {link}")
                     i += 1
                 except:
                     print("ERROR: json line load fail")
@@ -119,7 +124,7 @@ def download_set_from_json(yt_links, start_index, end_index):
         except:
             print("ERROR: requested link is out of range")
             break
-        name = get_name(urllib.parse.quote(yt_links[i], safe='', encoding=None, errors=None), i, "mp3")
+        name = get_name(urllib.parse.quote(yt_links[i], safe='', encoding=None, errors=None))
         os.system(f"yt-dlp --extract-audio --audio-format mp3 --no-playlist --audio-quality 0 {yt_links[i]} -o {name}")
         print("downloaded audio for video: " + yt_links[i] + " as " + name)
 
@@ -143,7 +148,7 @@ def download_from_json(yt_links, i, name=None):
     except:
         print("ERROR: requested link is out of range")
         return False
-    file_name = get_name(name, i)
+    file_name = get_name(name)
     if not os.path.isfile(file_name):
         os.system(f"yt-dlp --extract-audio --audio-format mp3 --no-playlist --audio-quality 0 {yt_links[i]} -o {file_name}")
         print("downloaded audio for video: " + yt_links[i])
@@ -164,7 +169,7 @@ def download_link(link, name, i="X"):
     bool: True if the download is successful, False otherwise.
     """
     print("downloading links..")
-    os.system(f"yt-dlp --extract-audio --audio-format mp3 --no-playlist --audio-quality 0 {link} -o {get_name(name, i)}")
+    os.system(f"yt-dlp --extract-audio --audio-format mp3 --no-playlist --audio-quality 0 {link} -o {get_name(name)}")
     print("downloaded audio for video: " + link)
     return True
 
@@ -201,7 +206,7 @@ def remove_mp3(name, i):
     name (str): The base name for the file.
     i (int): The index included in the file name.
     """
-    file_name = get_name(name, i)
+    file_name = get_name(name)
     if (os.path.isfile(file_name)):
         os.system(f"rm {file_name}")
         print(f"{file_name} removed")
@@ -226,7 +231,6 @@ def get_link_from_file(file_name):
 def main():
     global START_ID
     global END_ID
-    global FILE_PATH 
 
     parse_args()
 
@@ -235,29 +239,28 @@ def main():
         END_ID = len(links)
     else:
         links = load_set_from_json(FILE_PATH, START_ID, END_ID)
+        random.shuffle(links)
 
     aria_amt_set_up()
-    # yt_dlp_set_up()
 
     if not os.path.isfile(f"{CHECKPOINT_NAME}.safetensors"):
         print(f"{CHECKPOINT_NAME}.safetensors did not install")
         exit()
     
-    if not os.path.isdir("midi"):
-        os.system("mkdir midi")
+    if not os.path.isdir(MIDI_PATH):
+        os.system("mkdir " + MIDI_PATH)
 
     for i in tqdm(range(START_ID, END_ID)):
         try:
-            import urllib.parse
             name = urllib.parse.quote(links[i], safe='', encoding=None, errors=None)
-            print(f"downloading audio/midi #{i} for {name}..")
-            if not os.path.isfile(get_name(name, i, "mid")):
+            print(f"downloading audio/midi for {name}..")
+            if not os.path.isfile(get_name(name, "mid")):
                 if download_from_json(links, i, name):
-                    run_aria_amt(get_name(name, i, "mp3"), "./midi")
-                print(f"midi #{i} downloaded successfully") # in case program crashes, can run from where last left off
+                    run_aria_amt(get_name(name, "mp3"), MIDI_PATH)
+                print(f"midi #{i} {get_name(name)} downloaded successfully") # in case program crashes, can run from where last left off
             # remove_mp3(name, i)
         except Exception as e:
-            print(f"ERROR {e}: failed to download audio/midi #{i}")
+            print(f"ERROR {e}: failed to download audio/midi {links[i]}")
 
 if __name__ == "__main__":
     main()
