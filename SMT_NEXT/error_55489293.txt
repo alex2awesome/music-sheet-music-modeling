@@ -1,0 +1,2 @@
+slurmstepd: error: execve(): train.py: Permission denied
+srun: error: node2319: task 0: Exited with exit code 13

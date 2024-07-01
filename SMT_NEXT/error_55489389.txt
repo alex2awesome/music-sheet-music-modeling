@@ -1,0 +1,7 @@
+/var/spool/slurmd/job55489389/slurm_script: line 11: module: command not found
+/var/spool/slurmd/job55489389/slurm_script: line 12: module: command not found
+
+CondaError: Run 'conda init' before 'conda activate'
+
+slurmstepd: error: execve(): python: No such file or directory
+srun: error: node2319: task 0: Exited with exit code 2

@@ -1,3 +1,25 @@
+# Dataset
+SMT/Data/GrandStaff/grandstaff_dataset
+SMT/Data/Quartets/quartets_dataset
+SMT/weights
+SMT_NEXT/weights
+
+SMT_NEXT/Data/GrandStaff/grandstaff_dataset
+SMT_NEXT/Data/GrandStaff/grandstaff.tgz
+SMT_NEXT/wandb
+SMT_NEXT/lighting_logs
+
+SMT-plusplus/Data/GrandStaff/grandstaff.tgz
+SMT-plusplus/Data/GrandStaff/grandstaff_dataset
+SMT-plusplus/Data/test
+
+DATASET/piano-medium-stacked-1.0.safetensors
+DATASET/youtube-links.json
+
+
+*.krn
+*.txt
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

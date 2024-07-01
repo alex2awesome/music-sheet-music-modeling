@@ -1,0 +1,5 @@
+defaults:
+  - data: grandstaff_bekern
+  - model_setup: SMT_Next
+  - experiment: systems-pretraining
+  - cl: base_cl
