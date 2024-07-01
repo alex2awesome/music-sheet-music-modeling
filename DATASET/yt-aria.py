@@ -51,7 +51,6 @@ def get_name(name, i, suffix="mp3"):
     Returns:
     str: The generated file name.
     """
-
     return (f"audio-{i}-{name}.{suffix}")
 
 def yt_dlp_set_up():
@@ -250,9 +249,6 @@ def main():
         END_ID = len(links)
     else:
         links = load_set_from_json(FILE_PATH, START_ID, END_ID)
-
-    aria_amt_set_up()
-    yt_dlp_set_up()
 
     if not os.path.isfile(f"{CHECKPOINT_NAME}.safetensors"):
         print(f"{CHECKPOINT_NAME}.safetensors did not install")
