@@ -2,6 +2,7 @@
 
 import os, sys, subprocess
 import json, ast, urllib, argparse
+from tqdm.auto import tqdm
 
 MODEL_NAME = "medium-stacked"
 CHECKPOINT_NAME = f"piano-medium-stacked-1.0"
@@ -163,7 +164,7 @@ def main():
     if not os.path.isdir("midi"):
         os.system("mkdir midi")
 
-    for i in range(START_ID, END_ID):
+    for i in tqdm(range(START_ID, END_ID)):
         try:
             name = urllib.parse.quote(links[i], safe='', encoding=None, errors=None)
             print(name)
