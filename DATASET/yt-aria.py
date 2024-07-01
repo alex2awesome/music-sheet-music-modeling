@@ -55,17 +55,6 @@ def get_name(name, i, suffix="mp3"):
 
     return (f"audio-{i}-{name}.{suffix}")
 
-def yt_dlp_set_up():
-    """
-    Prompt the user to download and install yt-dlp if needed.
-    """    
-    if input("yt-dlp download? (y/n) ").lower() == "y":
-        try:
-            os.system("pip uninstall yt-dlp")
-            os.system("pip install yt-dlp")
-        except:
-            print("ERROR: yt-dlp install failed")
-            exit()
 
 def load_json(json_file):
     """
@@ -83,7 +72,6 @@ def load_json(json_file):
             try:
                 link = json.loads(line).get("url")
                 links.append(link)
-                print(link)
             except:
                 print("ERROR: json line load fail")
     return links
@@ -186,22 +174,14 @@ def download_link(link, name, i="X"):
 
 def aria_amt_set_up():
     """
-    Prompt the user to install aria-amt and download model weights if needed.
+    Download aria-amt model weights if needed.
     """
-
-    install = input("install aria-amt? (y/n) ")
-    if (install.lower() == "y"):
-        os.system("pip uninstall aria-amt")
-        os.system("pip install git+https://github.com/EleutherAI/aria-amt.git")
-
-    install = input("download model weights? (y/n) ")
-    if (install.lower() == "y"):
-        if not os.path.isfile(f"{CHECKPOINT_NAME}.safetensors"):
-            # NOTE: uncomment or comment depending on system
-            os.system(f"wget https://storage.googleapis.com/aria-checkpoints/amt/{CHECKPOINT_NAME}.safetensors")
-            # subprocess.run(["powershell", f"wget https://storage.googleapis.com/aria-checkpoints/amt/{CHECKPOINT_NAME}.safetensors"])
-        else:
-            print(f"Checkpoint already exists at {CHECKPOINT_NAME} - skipping download")
+    if not os.path.isfile(f"{CHECKPOINT_NAME}.safetensors"):
+        # NOTE: uncomment or comment depending on system
+        os.system(f"wget https://storage.googleapis.com/aria-checkpoints/amt/{CHECKPOINT_NAME}.safetensors")
+        # subprocess.run(["powershell", f"wget https://storage.googleapis.com/aria-checkpoints/amt/{CHECKPOINT_NAME}.safetensors"])
+    else:
+        print(f"Checkpoint already exists at {CHECKPOINT_NAME} - skipping download")
 
 def run_aria_amt(path, directory="."):
     """
@@ -211,7 +191,9 @@ def run_aria_amt(path, directory="."):
     path (str): The path to the audio file.
     directory (str): The directory to save the MIDI files (default is current directory).
     """    
-    os.system(f"aria-amt transcribe {MODEL_NAME} {CHECKPOINT_NAME}.safetensors -load_path=\"{path}\" -save_dir=\"{directory}\" -bs=1")
+    os.system(
+        f"aria-amt transcribe {MODEL_NAME} {CHECKPOINT_NAME}.safetensors -load_path=\"{path}\" -save_dir=\"{directory}\" -bs=1"
+    )
 
 def remove_mp3(name, i):
     """
@@ -257,7 +239,6 @@ def main():
         links = load_json_partial(FILE_PATH, START_ID, END_ID)
 
     aria_amt_set_up()
-    yt_dlp_set_up()
 
     if not os.path.isfile(f"{CHECKPOINT_NAME}.safetensors"):
         print(f"{CHECKPOINT_NAME}.safetensors did not install")
@@ -268,13 +249,14 @@ def main():
 
     for i in tqdm(range(START_ID, END_ID)):
         try:
+            import urllib.parse
             name = urllib.parse.quote(links[i], safe='', encoding=None, errors=None)
             print(f"downloading audio/midi #{i} for {name}..")
             if not os.path.isfile(get_name(name, i, "mid")):
                 if download_from_json(links, i, name):
                     run_aria_amt(get_name(name, i, "mp3"), "./midi")
                 print(f"midi #{i} downloaded successfully") # in case program crashes, can run from where last left off
-            remove_mp3(name, i)
+            # remove_mp3(name, i)
         except Exception as e:
             print(f"ERROR {e}: failed to download audio/midi #{i}")
 
