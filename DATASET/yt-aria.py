@@ -1,4 +1,5 @@
 # runs yt-dlp & aria-amt to extract midi for a given set of links
+# to set up, run setup.py
 
 import os, sys, subprocess
 import json, ast, urllib, argparse
@@ -249,6 +250,9 @@ def main():
         END_ID = len(links)
     else:
         links = load_set_from_json(FILE_PATH, START_ID, END_ID)
+
+    # aria_amt_set_up()
+    # yt_dlp_set_up()
 
     if not os.path.isfile(f"{CHECKPOINT_NAME}.safetensors"):
         print(f"{CHECKPOINT_NAME}.safetensors did not install")
