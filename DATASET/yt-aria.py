@@ -15,7 +15,6 @@ def parse_args():
     Parse command line arguments to set the start index, end index, and file path
     for the JSON file containing links.
     """
-
     global START_ID
     global END_ID
     global FILE_PATH 
@@ -76,7 +75,7 @@ def load_json(json_file):
                 print("ERROR: json line load fail")
     return links
 
-def load_json_partial(json_file, start_index, end_index):
+def load_set_from_json(json_file, start_index, end_index):
     """
     Load a subset of links from a JSON file based on the provided indices.
 
@@ -88,7 +87,6 @@ def load_json_partial(json_file, start_index, end_index):
     Returns:
     list: A list of URLs extracted from the JSON file within the specified range.
     """
-
     links = []
     i = 0
     with open(json_file) as file:
@@ -114,7 +112,6 @@ def download_set_from_json(yt_links, start_index, end_index):
     start_index (int): The starting index for the download.
     end_index (int): The ending index for the download.
     """
-
     print("downloading links..")
     for i in range(start_index, end_index):
         try:
@@ -138,7 +135,6 @@ def download_from_json(yt_links, i, name=None):
     Returns:
     bool: True if the download is successful, False otherwise.
     """
-
     if name is None:
         name = i
     print("downloading links..")
@@ -183,6 +179,7 @@ def aria_amt_set_up():
     else:
         print(f"Checkpoint already exists at {CHECKPOINT_NAME} - skipping download")
 
+
 def run_aria_amt(path, directory="."):
     """
     Run aria-amt to transcribe audio files to MIDI.
@@ -190,10 +187,11 @@ def run_aria_amt(path, directory="."):
     Parameters:
     path (str): The path to the audio file.
     directory (str): The directory to save the MIDI files (default is current directory).
-    """    
+    """
     os.system(
         f"aria-amt transcribe {MODEL_NAME} {CHECKPOINT_NAME}.safetensors -load_path=\"{path}\" -save_dir=\"{directory}\" -bs=1"
     )
+
 
 def remove_mp3(name, i):
     """
@@ -202,7 +200,7 @@ def remove_mp3(name, i):
     Parameters:
     name (str): The base name for the file.
     i (int): The index included in the file name.
-    """    
+    """
     file_name = get_name(name, i)
     if (os.path.isfile(file_name)):
         os.system(f"rm {file_name}")
@@ -219,7 +217,7 @@ def get_link_from_file(file_name):
 
     Returns:
     str: The original URL.
-    """    
+    """
     s = file_name.split("-")
     s = s[2].split(".")
     print(s[0])
@@ -236,7 +234,7 @@ def main():
         links = load_json(FILE_PATH)
         END_ID = len(links)
     else:
-        links = load_json_partial(FILE_PATH, START_ID, END_ID)
+        links = load_set_from_json(FILE_PATH, START_ID, END_ID)
 
     aria_amt_set_up()
 
