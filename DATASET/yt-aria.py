@@ -236,7 +236,7 @@ def main():
     else:
         links = load_set_from_json(FILE_PATH, START_ID, END_ID)
 
-    # aria_amt_set_up()
+    aria_amt_set_up()
     # yt_dlp_set_up()
 
     if not os.path.isfile(f"{CHECKPOINT_NAME}.safetensors"):
