@@ -1,20 +1,41 @@
-# runs yt-dlp to extract mp3 for a given set of links
-# NOTE: need to download ffmpeg separately for yt-dlp to download as mp3 in some cases
-# NOTE: if using Windows system and wget is not installed then see aria_amt_set_up() / for ref: https://learn.microsoft.com/en-us/answers/questions/1167673/how-to-use-wget-command-on-windows-(for-recursive
-# to run: python script.py <json file name>
+# runs yt-dlp & aria-amt to extract midi for a given set of links
 
-import subprocess
-import os, sys
-import json, ast, urllib
+import os, sys, subprocess
+import json, ast, urllib, argparse
 
-FILE_PATH = ""
 MODEL_NAME = "medium-stacked"
 CHECKPOINT_NAME = f"piano-medium-stacked-1.0"
+START_ID = 0
+END_ID = -1
+FILE_PATH = ""
 
 def parse_args():
-    try:
-        return sys.argv[1]
-    except:
+    global START_ID
+    global END_ID
+    global FILE_PATH 
+
+    parser = argparse.ArgumentParser(prog="yt-aria-script",
+                                     description="runs yt-dlp & aria-amt to extract midi for json file of links")
+    parser.add_argument("json")
+    parser.add_argument("-s", "--start-idx", type=int)
+    parser.add_argument("-e", "--end-idx", type=int)
+    args = parser.parse_args()
+    print(args)
+
+    print(args.json, args.start_idx, args.end_idx)
+    
+    if args.start_idx is not None:
+        START_ID = args.start_idx
+
+    if args.end_idx is not None:
+        END_ID = args.end_idx
+
+    print(START_ID)
+    print(END_ID)
+
+    if os.path.isfile(args.json):
+        FILE_PATH = str(args.json)
+    else:
         print("ERROR: json file not recognized")
         exit()
 
@@ -42,14 +63,14 @@ def load_json(json_file):
                 print("ERROR: json line load fail")
     return links
 
-def load_json_partial(json_file, start, end):
+def load_json_partial(json_file, start_index, end_index):
     links = []
     i = 0
     with open(json_file) as file:
         for line in file:
-            if i == end:
+            if i == end_index:
                 break
-            elif i >= start:
+            elif i >= start_index:
                 try:
                     link = json.loads(line).get("url")
                     links.append(link)
@@ -126,19 +147,17 @@ def get_link_from_file(file_name):
     return urllib.parse.unquote_plus(s[0])
 
 def main():
-    FILE_PATH = parse_args()
+    global START_ID
+    global END_ID
+    global FILE_PATH 
 
-    START = 0
-    END = -1 # not included
+    parse_args()
 
-    # START = int(input("START: "))
-    # END = int(input("END: "))
-
-    if END == -1:
+    if END_ID == -1:
         links = load_json(FILE_PATH)
-        END = len(links)
+        END_ID = len(links)
     else:
-        links = load_json_partial(FILE_PATH, START, END)
+        links = load_json_partial(FILE_PATH, START_ID, END_ID)
 
     aria_amt_set_up()
     yt_dlp_set_up()
@@ -150,7 +169,7 @@ def main():
     if not os.path.isdir("midi"):
         os.system("mkdir midi")
 
-    for i in range(START, END):
+    for i in range(START_ID, END_ID):
         try:
             name = urllib.parse.quote(links[i], safe='', encoding=None, errors=None)
             print(name)
