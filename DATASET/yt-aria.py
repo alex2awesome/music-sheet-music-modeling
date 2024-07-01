@@ -56,7 +56,7 @@ def load_json(json_file):
                 print("ERROR: json line load fail")
     return links
 
-def load_json_partial(json_file, start_index, end_index):
+def load_set_from_json(json_file, start_index, end_index):
     links = []
     i = 0
     with open(json_file) as file:
@@ -151,7 +151,7 @@ def main():
         links = load_json(FILE_PATH)
         END_ID = len(links)
     else:
-        links = load_json_partial(FILE_PATH, START_ID, END_ID)
+        links = load_set_from_json(FILE_PATH, START_ID, END_ID)
 
     aria_amt_set_up()
     yt_dlp_set_up()

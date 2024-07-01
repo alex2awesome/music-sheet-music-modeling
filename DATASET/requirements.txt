@@ -31,7 +31,7 @@ msgpack==1.0.8
 mutagen==1.47.0
 networkx==3.3
 numba==0.60.0
-numpy==2.0.0
+numpy==1.26.0
 orjson==3.10.5
 packaging==23.2
 platformdirs==4.2.2
