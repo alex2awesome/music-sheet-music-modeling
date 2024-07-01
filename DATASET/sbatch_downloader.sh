@@ -10,4 +10,4 @@
 module purge
 eval "$(conda shell.bash hook)"
 mamba activate music-research
-python yt-aria.py test.json
+python yt-aria.py youtube-links.json

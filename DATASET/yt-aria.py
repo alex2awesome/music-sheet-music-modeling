@@ -12,6 +12,7 @@ START_ID = 0
 END_ID = -1
 FILE_PATH = ""
 MIDI_PATH = "./midi"
+MP3_PATH = "./mp3"
 
 def parse_args():
     """
@@ -22,6 +23,7 @@ def parse_args():
     global END_ID
     global FILE_PATH
     global MIDI_PATH
+    global MP3_PATH
 
     parser = argparse.ArgumentParser(
         prog="yt-aria-script",
@@ -30,15 +32,21 @@ def parse_args():
     parser.add_argument("json")
     parser.add_argument("-s", "--start-idx", type=int)
     parser.add_argument("-e", "--end-idx", type=int)
-    parser.add_argument("-d", "--download-dir", type=str)
+    parser.add_argument("-m", "--midi-dir", type=str)
+    parser.add_argument("-t", "--mp3-dir", type=str)
+    parser.add_argument("-c", "--seed", type=int)
     args = parser.parse_args()
     
     if args.start_idx is not None:
         START_ID = args.start_idx
     if args.end_idx is not None:
         END_ID = args.end_idx
-    if args.download_dir is not None:
+    if args.midi_dir is not None:
         MIDI_PATH = args.download_dir
+    if args.mp3_dir is not None:
+        MP3_PATH = args.download_dir
+    if args.seed is not None:
+        random.seed(args.seed)
 
     if os.path.isfile(args.json):
         FILE_PATH = str(args.json)
@@ -52,7 +60,6 @@ def get_name(name, suffix="mp3"):
 
     Parameters:
     name (str): The base name for the file.
-    i (int): The index to include in the file name.
     suffix (str): The file extension/suffix (default is "mp3").
 
     Returns:
@@ -124,9 +131,9 @@ def download_set_from_json(yt_links, start_index, end_index):
         except:
             print("ERROR: requested link is out of range")
             break
-        name = get_name(urllib.parse.quote(yt_links[i], safe='', encoding=None, errors=None))
-        os.system(f"yt-dlp --extract-audio --audio-format mp3 --no-playlist --audio-quality 0 {yt_links[i]} -o {name}")
-        print("downloaded audio for video: " + yt_links[i] + " as " + name)
+        file_name = get_name(urllib.parse.quote(yt_links[i], safe='', encoding=None, errors=None))
+        os.system(f"yt-dlp --extract-audio --audio-format mp3 --no-playlist --audio-quality 0 {yt_links[i]} -o {MP3_PATH}/{file_name}")
+        print("downloaded audio for video: " + yt_links[i] + " as " + file_name)
 
 def download_from_json(yt_links, i, name=None):
     """
@@ -149,27 +156,27 @@ def download_from_json(yt_links, i, name=None):
         print("ERROR: requested link is out of range")
         return False
     file_name = get_name(name)
-    if not os.path.isfile(file_name):
-        os.system(f"yt-dlp --extract-audio --audio-format mp3 --no-playlist --audio-quality 0 {yt_links[i]} -o {file_name}")
+    path = f"{MP3_PATH}/{file_name}"
+    if not os.path.isfile(path):
+        os.system(f"yt-dlp --extract-audio --audio-format mp3 --no-playlist --audio-quality 0 {yt_links[i]} -o {path}")
         print("downloaded audio for video: " + yt_links[i])
     else:
         print("audio already downloaded for video: " + yt_links[i] + " as " + file_name)
     return True
 
-def download_link(link, name, i="X"):
+def download_link(link, name):
     """
     Download a single audio file from a YouTube link using yt-dlp.
 
     Parameters:
     link (str): The YouTube URL.
     name (str): The custom name for the file.
-    i (str): The index to include in the file name (default is "X").
 
     Returns:
     bool: True if the download is successful, False otherwise.
     """
     print("downloading links..")
-    os.system(f"yt-dlp --extract-audio --audio-format mp3 --no-playlist --audio-quality 0 {link} -o {get_name(name)}")
+    os.system(f"yt-dlp --extract-audio --audio-format mp3 --no-playlist --audio-quality 0 {link} -o {MP3_PATH}/{get_name(name)}")
     print("downloaded audio for video: " + link)
     return True
 
@@ -194,22 +201,21 @@ def run_aria_amt(path, directory="."):
     directory (str): The directory to save the MIDI files (default is current directory).
     """
     os.system(
-        f"aria-amt transcribe {MODEL_NAME} {CHECKPOINT_NAME}.safetensors -load_path=\"{path}\" -save_dir=\"{directory}\" -bs=1"
+        f"aria-amt transcribe {MODEL_NAME} {CHECKPOINT_NAME}.safetensors -load_path=\"{MP3_PATH}/{path}\" -save_dir=\"{directory}\" -bs=1"
     )
 
-
-def remove_mp3(name, i):
+def remove_mp3(name):
     """
     Remove the downloaded MP3 file.
 
     Parameters:
     name (str): The base name for the file.
-    i (int): The index included in the file name.
     """
     file_name = get_name(name)
-    if (os.path.isfile(file_name)):
-        os.system(f"rm {file_name}")
-        print(f"{file_name} removed")
+    path = MP3_PATH + "/" + file_name
+    if (os.path.isfile(path)):
+        os.system(f"rm {path}")
+        print(f"{path} removed")
     else:
         print(f"ERROR: mp3 file not found, could not remove")
 
@@ -234,6 +240,10 @@ def main():
 
     parse_args()
 
+    BATCH = 100
+    file_comparison = {}
+    no_good = []
+
     if END_ID == -1:
         links = load_json(FILE_PATH)
         END_ID = len(links)
@@ -247,6 +257,9 @@ def main():
         print(f"{CHECKPOINT_NAME}.safetensors did not install")
         exit()
     
+    if not os.path.isdir(MP3_PATH):
+        os.system("mkdir " + MP3_PATH)
+    
     if not os.path.isdir(MIDI_PATH):
         os.system("mkdir " + MIDI_PATH)
 
@@ -254,13 +267,20 @@ def main():
         try:
             name = urllib.parse.quote(links[i], safe='', encoding=None, errors=None)
             print(f"downloading audio/midi for {name}..")
-            if not os.path.isfile(get_name(name, "mid")):
+            if not os.path.isfile(f"{MIDI_PATH}/{get_name(name, "mid")}"):
                 if download_from_json(links, i, name):
                     run_aria_amt(get_name(name, "mp3"), MIDI_PATH)
                 print(f"midi #{i} {get_name(name)} downloaded successfully") # in case program crashes, can run from where last left off
-            # remove_mp3(name, i)
+                # file_comparison[name] = {CALCULATE DIFF BETWEEN MP3 & MIDI}
         except Exception as e:
             print(f"ERROR {e}: failed to download audio/midi {links[i]}")
+
+        if len(file_comparison) >= BATCH:
+            for file in file_comparison.keys():
+                # if file_comparison[file] < BENCHMARK:
+                    # remove mid file?
+                remove_mp3(get_name(file))
+            file_comparison = {}
 
 if __name__ == "__main__":
     main()
