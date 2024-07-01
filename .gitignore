@@ -12,6 +12,10 @@ SMT_NEXT/lighting_logs
 SMT-plusplus/Data/GrandStaff/grandstaff.tgz
 SMT-plusplus/Data/GrandStaff/grandstaff_dataset
 SMT-plusplus/Data/test
+
+DATASET/piano-medium-stacked-1.0.safetensors
+DATASET/youtube-links.json
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
