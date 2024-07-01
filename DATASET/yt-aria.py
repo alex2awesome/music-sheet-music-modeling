@@ -20,18 +20,11 @@ def parse_args():
     parser.add_argument("-s", "--start-idx", type=int)
     parser.add_argument("-e", "--end-idx", type=int)
     args = parser.parse_args()
-    print(args)
-
-    print(args.json, args.start_idx, args.end_idx)
     
     if args.start_idx is not None:
         START_ID = args.start_idx
-
     if args.end_idx is not None:
         END_ID = args.end_idx
-
-    print(START_ID)
-    print(END_ID)
 
     if os.path.isfile(args.json):
         FILE_PATH = str(args.json)
@@ -67,14 +60,15 @@ def load_json_partial(json_file, start_index, end_index):
     links = []
     i = 0
     with open(json_file) as file:
-        for line in file:
-            if i == end_index:
+        for line in file: # will end if reached end of json
+            if i >= end_index:
                 break
             elif i >= start_index:
                 try:
                     link = json.loads(line).get("url")
                     links.append(link)
-                    print(link)
+                    print(f"loaded #{i}: {link}")
+                    i += 1
                 except:
                     print("ERROR: json line load fail")
     return links
