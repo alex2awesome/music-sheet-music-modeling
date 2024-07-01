@@ -2,6 +2,7 @@ import re
 import cv2
 import torch
 import numpy as np
+import json
 
 from config_typings import DataConfig, CLConfig
 from rich import progress
@@ -184,6 +185,7 @@ class SyntheticOMRDataset(OMRIMG2SEQDataset):
             x, y = self.generator.generate_system()
             x_data.append(x)
             y_data.append(y)
+
         return x_data, y_data
     
     def __getitem__(self, index):
