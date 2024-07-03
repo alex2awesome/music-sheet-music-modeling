@@ -28,6 +28,7 @@ def parse_args():
     parser.add_argument("-m", "--mid-dir", type=str, default="midi")
     parser.add_argument("-t", "--mp3-dir", type=str, default="mp3")
     parser.add_argument("--dtw-file", type=str, default="dtw-scores.csv")
+    parser.add_argument("--score-threshold", type=float, default=8)
     parser.add_argument("-c", "--seed", type=int)
     args = parser.parse_args()
     if args.seed is not None:
@@ -49,7 +50,7 @@ def get_name(name, path, suffix="mp3"):
     return os.path.join(path, f"audio-{name}.{suffix}")
 
 
-def load_json(json_file):
+def load_json(json_file, score_threshold=None):
     """
     Load links from a JSON file.
 
@@ -63,7 +64,11 @@ def load_json(json_file):
     with open(json_file) as file:
         for line in file:
             try:
-                link = json.loads(line).get("url")
+                item = json.loads(line)
+                if score_threshold is not None:
+                    if item.get("score") < score_threshold:
+                        continue
+                link = item.get("url")
                 links.append(link)
             except:
                 print("ERROR: json line load fail")
@@ -166,7 +171,7 @@ def main():
     args = parse_args()
 
     if args.end_idx < 0:
-        links = load_json(args.input_json)
+        links = load_json(args.input_json, args.score_threshold)
         args.end_idx = len(links)
     else:
         links = load_set_from_json(args.input_json, args.start_idx, args.end_idx)
@@ -184,7 +189,7 @@ def main():
     if not os.path.isdir(args.mid_dir):
         os.system("mkdir " + args.mid_dir)
 
-    BATCH = 2
+    BATCH = 100
     buffer_audio_files = []
     buffer_midi_files = []
     for i in tqdm(range(args.start_idx, args.end_idx)):
