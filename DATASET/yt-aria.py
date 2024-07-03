@@ -25,7 +25,7 @@ def parse_args():
     parser.add_argument("--input_json", type=str, required=True)
     parser.add_argument("-s", "--start-idx", type=int, default=0)
     parser.add_argument("-e", "--end-idx", type=int, default=-1)
-    parser.add_argument("-m", "--midi-dir", type=str, default="midi")
+    parser.add_argument("-m", "--mid-dir", type=str, default="midi")
     parser.add_argument("-t", "--mp3-dir", type=str, default="mp3")
     parser.add_argument("--dtw-file", type=str, default="dtw-scores.csv")
     parser.add_argument("-c", "--seed", type=int)
@@ -190,8 +190,8 @@ def main():
     for i in tqdm(range(args.start_idx, args.end_idx)):
         try:
             name = urllib.parse.quote(links[i], safe='', encoding=None, errors=None)
-            mid_fn = get_name(name, args.mid_path, "mid")
-            mp3_fn = get_name(name, args.mp3_path, "mp3")
+            mid_fn = get_name(name, args.mid_dir, "mid")
+            mp3_fn = get_name(name, args.mp3_dir, "mp3")
             if not os.path.isfile(mid_fn):
                 if download_using_ytdl(links[i], mp3_fn):
                     run_aria_amt(mp3_fn, args.mid_dir)
