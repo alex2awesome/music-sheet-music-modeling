@@ -5,6 +5,9 @@ import os, sys, subprocess
 import json, ast, urllib.parse, argparse
 import random
 from tqdm.auto import tqdm
+from dtw import run as run_dtw
+
+
 
 MODEL_NAME = "medium-stacked"
 CHECKPOINT_NAME = f"piano-medium-stacked-1.0"
@@ -13,6 +16,7 @@ END_ID = -1
 FILE_PATH = ""
 MIDI_PATH = "./midi"
 MP3_PATH = "./mp3"
+
 
 def parse_args():
     """
@@ -34,6 +38,7 @@ def parse_args():
     parser.add_argument("-e", "--end-idx", type=int)
     parser.add_argument("-m", "--midi-dir", type=str)
     parser.add_argument("-t", "--mp3-dir", type=str)
+    parser.add_argument("--dtw-file", type=str, default="dtw-scores.csv")
     parser.add_argument("-c", "--seed", type=int)
     args = parser.parse_args()
     
@@ -54,6 +59,7 @@ def parse_args():
         print("ERROR: json file not recognized")
         exit()
 
+
 def get_name(name, suffix="mp3"):
     """
     Generate a file name using the provided name, index, and suffix.
@@ -66,6 +72,7 @@ def get_name(name, suffix="mp3"):
     str: The generated file name.
     """
     return (f"audio-{name}.{suffix}")
+
 
 def load_json(json_file):
     """
@@ -86,6 +93,7 @@ def load_json(json_file):
             except:
                 print("ERROR: json line load fail")
     return links
+
 
 def load_set_from_json(json_file, start_index, end_index):
     """
@@ -115,6 +123,7 @@ def load_set_from_json(json_file, start_index, end_index):
                     print("ERROR: json line load fail")
     return links
 
+
 def download_set_from_json(yt_links, start_index, end_index):
     """
     Download a set of audio files from YouTube links using yt-dlp.
@@ -135,7 +144,8 @@ def download_set_from_json(yt_links, start_index, end_index):
         os.system(f"yt-dlp --extract-audio --audio-format mp3 --no-playlist --audio-quality 0 {yt_links[i]} -o {MP3_PATH}/{file_name}")
         print("downloaded audio for video: " + yt_links[i] + " as " + file_name)
 
-def download_from_json(yt_links, i, name=None):
+
+def download_using_ytdl(yt_links, i, name=None):
     """
     Download a single audio file from a YouTube link using yt-dlp.
 
@@ -164,6 +174,7 @@ def download_from_json(yt_links, i, name=None):
         print("audio already downloaded for video: " + yt_links[i] + " as " + file_name)
     return True
 
+
 def download_link(link, name):
     """
     Download a single audio file from a YouTube link using yt-dlp.
@@ -179,6 +190,7 @@ def download_link(link, name):
     os.system(f"yt-dlp --extract-audio --audio-format mp3 --no-playlist --audio-quality 0 {link} -o {MP3_PATH}/{get_name(name)}")
     print("downloaded audio for video: " + link)
     return True
+
 
 def aria_amt_set_up():
     """
@@ -204,6 +216,7 @@ def run_aria_amt(path, directory="."):
         f"aria-amt transcribe {MODEL_NAME} {CHECKPOINT_NAME}.safetensors -load_path=\"{MP3_PATH}/{path}\" -save_dir=\"{directory}\" -bs=1"
     )
 
+
 def remove_mp3(name):
     """
     Remove the downloaded MP3 file.
@@ -218,6 +231,7 @@ def remove_mp3(name):
         print(f"{path} removed")
     else:
         print(f"ERROR: mp3 file not found, could not remove")
+
 
 def get_link_from_file(file_name):
     """
@@ -234,23 +248,20 @@ def get_link_from_file(file_name):
     print(s[0])
     return urllib.parse.unquote_plus(s[0])
 
+
 def main():
     global START_ID
     global END_ID
 
     parse_args()
 
-    BATCH = 100
-    file_comparison = {}
-    no_good = []
-
     if END_ID == -1:
         links = load_json(FILE_PATH)
         END_ID = len(links)
     else:
         links = load_set_from_json(FILE_PATH, START_ID, END_ID)
-        random.shuffle(links)
 
+    random.shuffle(links)
     aria_amt_set_up()
 
     if not os.path.isfile(f"{CHECKPOINT_NAME}.safetensors"):
@@ -263,24 +274,36 @@ def main():
     if not os.path.isdir(MIDI_PATH):
         os.system("mkdir " + MIDI_PATH)
 
+    BATCH = 2
+    buffer_audio_files = []
+    buffer_midi_files = []
     for i in tqdm(range(START_ID, END_ID)):
         try:
             name = urllib.parse.quote(links[i], safe='', encoding=None, errors=None)
-            print(f"downloading audio/midi for {name}..")
-            if not os.path.isfile(f"{MIDI_PATH}/{get_name(name, "mid")}"):
-                if download_from_json(links, i, name):
-                    run_aria_amt(get_name(name, "mp3"), MIDI_PATH)
-                print(f"midi #{i} {get_name(name)} downloaded successfully") # in case program crashes, can run from where last left off
-                # file_comparison[name] = {CALCULATE DIFF BETWEEN MP3 & MIDI}
+            mid_fn = get_name(name, "mid")
+            mp3_fn = get_name(name, "mp3")
+            if not os.path.isfile(f"{MIDI_PATH}/{mid_fn}"):
+                if download_using_ytdl(links, i, name):
+                    run_aria_amt(mp3_fn, MIDI_PATH)
+                    if os.path.isfile(f"{MIDI_PATH}/{mid_fn}") and os.path.isfile(f"{MP3_PATH}/{mp3_fn}"):
+                        buffer_audio_files.append(mp3_fn)
+                        buffer_midi_files.append(mid_fn)
+            if len(buffer_audio_files) >= BATCH:
+                #         output_file,
+                #         audio_dir,
+                #         mid_dir,
+                #         audio_file_list=None,
+                #         midi_file_list=None,
+                #         output_mode="a"
+                run_dtw()
+
+                list(map(remove_mp3, buffer_audio_files))
+                buffer_audio_files = []
+                buffer_midi_files = []
+
         except Exception as e:
             print(f"ERROR {e}: failed to download audio/midi {links[i]}")
 
-        if len(file_comparison) >= BATCH:
-            for file in file_comparison.keys():
-                # if file_comparison[file] < BENCHMARK:
-                    # remove mid file?
-                remove_mp3(get_name(file))
-            file_comparison = {}
 
 if __name__ == "__main__":
     main()
