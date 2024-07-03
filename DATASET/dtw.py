@@ -48,7 +48,7 @@ def compute_cqt(audio_data):
 
 
 # Had to change this to average chunks for large audio files for cpu reasons
-def load_and_run_dtw(audio_file, midi_file):
+def load_and_run_dtw(input_files):
     def calc_score(_midi_cqt, _audio_cqt):
         # Nearly all high-performing systems used cosine distance
         distance_matrix = scipy.spatial.distance.cdist(
@@ -73,6 +73,7 @@ def load_and_run_dtw(audio_file, midi_file):
         return score
 
     # Load in the audio data
+    audio_file, midi_file = input_files
     audio_data, _ = librosa.load(audio_file, sr=FS)
     audio_cqt, audio_times = compute_cqt(audio_data)
 
