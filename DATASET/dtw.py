@@ -196,7 +196,7 @@ def run(
         audio_dir=audio_dir, mid_dir=mid_dir, audio_file_list=audio_file_list, midi_file_list=midi_file_list
     )
     results = {}
-    if os.path.exists(args.output_file):
+    if os.path.exists(output_file):
         with open(args.output_file, "r") as f:
             reader = csv.DictReader(f)
             for row in reader:
