@@ -197,7 +197,7 @@ def run(
     )
     results = {}
     if os.path.exists(output_file):
-        with open(args.output_file, "r") as f:
+        with open(output_file, "r") as f:
             reader = csv.DictReader(f)
             for row in reader:
                 results[row["mid_path"]] = {
@@ -217,7 +217,7 @@ def run(
     if (os.path.exists(output_file) and output_mode == "a"):
         needs_header = False
 
-    score_csv = open(args.output_file, output_mode)
+    score_csv = open(output_file, output_mode)
     csv_writer = csv.writer(score_csv)
     if needs_header:
         csv_writer.writerow(["mid_path", "avg_score", "max_score"])
