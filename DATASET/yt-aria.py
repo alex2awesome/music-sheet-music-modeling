@@ -75,35 +75,6 @@ def load_json(json_file, score_threshold=None):
     return links
 
 
-def load_set_from_json(json_file, start_index, end_index):
-    """
-    Load a subset of links from a JSON file based on the provided indices.
-
-    Parameters:
-    json_file (str): The path to the JSON file.
-    start_index (int): The starting index.
-    end_index (int): The ending index.
-
-    Returns:
-    list: A list of URLs extracted from the JSON file within the specified range.
-    """
-    links = []
-    i = 0
-    with open(json_file) as file:
-        for line in file: # will end if reached end of json
-            if i >= end_index:
-                break
-            elif i >= start_index:
-                try:
-                    link = json.loads(line).get("url")
-                    links.append(link)
-                    print(f"loaded: {link}")
-                    i += 1
-                except:
-                    print("ERROR: json line load fail")
-    return links
-
-
 def download_using_ytdl(yt_link, mp3_output_fp):
     """
     Download a single audio file from a YouTube link using yt-dlp.
@@ -170,11 +141,12 @@ def remove_mp3(mp3_fp):
 def main():
     args = parse_args()
 
+    links = load_json(args.input_json, args.score_threshold)
+
     if args.end_idx < 0:
-        links = load_json(args.input_json, args.score_threshold)
         args.end_idx = len(links)
-    else:
-        links = load_set_from_json(args.input_json, args.start_idx, args.end_idx)
+
+    links = links[args.start_idx: args.end_idx]
 
     random.shuffle(links)
     aria_amt_set_up()
