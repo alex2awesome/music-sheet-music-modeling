@@ -1,0 +1,10 @@
+.*
+!.gitignore
+.DS_Store
+improv
+data
+doc
+myhum
+external/pcre-8.35/autom4te.cache
+external/pcre-8.35/config.h.in~
+.DS_Store

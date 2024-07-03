@@ -1,0 +1,23 @@
+!!!test: Test of basic chord types in first inversion.
+!!!command: sonority %in > %out
+**qual
+::
+note::C
+incmaj:1:C
+incmin:1:C
+maj:1:C
+min:1:C
+dim:1:C
+aug:1:C
+majmaj7:1:C
+dom7:1:C
+minmaj7:1:C
+minmin7:1:C
+halfdim7:1:C
+fulldim7:1:C
+minmin7x5:1:C
+dom7x5:1:C
+french6:1:C
+german6:1:C
+italian6:1:C
+*-

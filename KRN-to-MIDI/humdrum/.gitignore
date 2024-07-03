@@ -1,0 +1,12 @@
+/bin
+
+.* 
+!.gitignore 
+
+/toolkit-source/c-programs/assemble
+/toolkit-source/c-programs/humdrum_
+/toolkit-source/c-programs/midi
+/toolkit-source/c-programs/mkern
+/toolkit-source/c-programs/rid_
+/toolkit-source/c-programs/scand
+
