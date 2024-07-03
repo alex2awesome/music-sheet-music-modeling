@@ -1,3 +1,5 @@
+# music-sheet-music-modeling
+=======
 
 ## Quick Start
 
@@ -54,4 +56,3 @@ Be sure to keep this README up to date with any other additions or warnings.
 Use this space to list resources you find helpful and would like to give credit to.
 
 - [SMT - Sheet Music Transformer]([https://github.com/ShaanCoding/ReadME-Generator](https://github.com/multiscore/SMT))
-
