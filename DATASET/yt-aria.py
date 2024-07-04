@@ -29,6 +29,7 @@ def parse_args():
     parser.add_argument("-t", "--mp3-dir", type=str, default="mp3")
     parser.add_argument("--dtw-file", type=str, default="dtw-scores.csv")
     parser.add_argument("--score-threshold", type=float, default=8)
+    parser.add_argument("--transcribe", action="store_true")
     parser.add_argument("-c", "--seed", type=int)
     args = parser.parse_args()
     if args.seed is not None:
@@ -171,10 +172,11 @@ def main():
             mp3_fn = get_name(name, args.mp3_dir, "mp3")
             if not os.path.isfile(mid_fn):
                 if download_using_ytdl(links[i], mp3_fn):
-                    run_aria_amt(mp3_fn, args.mid_dir)
-                    if os.path.isfile(mid_fn) and os.path.isfile(mp3_fn):
-                        buffer_audio_files.append(mp3_fn)
-                        buffer_midi_files.append(mid_fn)
+                    if args.transcribe:
+                        run_aria_amt(mp3_fn, args.mid_dir)
+                        if os.path.isfile(mid_fn) and os.path.isfile(mp3_fn):
+                            buffer_audio_files.append(mp3_fn)
+                            buffer_midi_files.append(mid_fn)
             if len(buffer_audio_files) >= BATCH:
                 run_dtw(args.dtw_file, args.mp3_dir, args.mid_dir, buffer_audio_files, buffer_midi_files)
 
