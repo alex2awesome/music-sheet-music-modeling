@@ -70,8 +70,8 @@ def load_json(json_file, score_threshold=None):
                         continue
                 link = item.get("url")
                 links.append(link)
-            except:
-                print("ERROR: json line load fail")
+            except Exception as e:
+                print(f"ERROR {e}: json line load fail")
     return links
 
 
