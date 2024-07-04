@@ -66,7 +66,7 @@ def load_json(json_file, score_threshold=None):
             try:
                 item = json.loads(line)
                 if score_threshold is not None:
-                    if item.get("score") < score_threshold:
+                    if item.get("score", 10) < score_threshold:
                         continue
                 link = item.get("url")
                 links.append(link)
