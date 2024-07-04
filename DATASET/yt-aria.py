@@ -27,6 +27,7 @@ def parse_args():
     parser.add_argument("-e", "--end-idx", type=int, default=-1)
     parser.add_argument("-m", "--mid-dir", type=str, default="midi")
     parser.add_argument("-t", "--mp3-dir", type=str, default="mp3")
+    parser.add_argument("--proxy-file", type=str, default="proxies.txt")
     parser.add_argument("--dtw-file", type=str, default="dtw-scores.csv")
     parser.add_argument("--score-threshold", type=float, default=8)
     parser.add_argument("--transcribe", action="store_true")
@@ -77,7 +78,7 @@ def load_json(json_file, score_threshold=None):
     return links
 
 
-def download_using_ytdl(yt_link, mp3_output_fp):
+def download_using_ytdl(yt_link, mp3_output_fp, proxy_list):
     """
     Download a single audio file from a YouTube link using yt-dlp.
 
@@ -89,8 +90,15 @@ def download_using_ytdl(yt_link, mp3_output_fp):
     Returns:
     bool: True if the download is successful, False otherwise.
     """
+
+    cmd = f"yt-dlp --extract-audio --audio-format mp3 --no-playlist --audio-quality 0 {yt_link} -o {mp3_output_fp}"
+
+    if len(proxy_list) > 0:
+        proxy = random.choice(proxy_list)
+        cmd = f"yt-dlp --extract-audio --audio-format mp3 --proxy {proxy} --no-playlist --audio-quality 0 {yt_link} -o {mp3_output_fp}"
+
     if not os.path.isfile(mp3_output_fp):
-        os.system(f"yt-dlp --extract-audio --audio-format mp3 --no-playlist --audio-quality 0 {yt_link} -o {mp3_output_fp}")
+        os.system(cmd)
         print("downloaded audio for video: " + yt_link)
     else:
         print("audio already downloaded for video: " + yt_link + " as " + mp3_output_fp)
@@ -139,6 +147,22 @@ def remove_mp3(mp3_fp):
     else:
         print(f"ERROR: mp3 file not found, could not remove")
 
+def load_proxies(proxy_file):
+    """
+    Load proxies from a file.
+
+    Parameters:
+    proxy_file (str): The path to the proxy file.
+
+    Returns:
+    list: A list of proxies.
+    """
+    proxies = []
+    with open(proxy_file, "r") as file:
+        for line in file:
+            proxies.append(line.strip())
+    return proxies
+
 
 def main():
     args = parse_args()
@@ -166,13 +190,18 @@ def main():
     BATCH = 100
     buffer_audio_files = []
     buffer_midi_files = []
+
+    proxy_list = []
+    if os.path.isfile(args.proxy_file):
+        proxy_list = load_proxies(args.proxy_file)
+
     for i in tqdm(range(args.start_idx, args.end_idx)):
         try:
             name = urllib.parse.quote(links[i], safe='', encoding=None, errors=None)
             mid_fn = get_name(name, args.mid_dir, "mid")
             mp3_fn = get_name(name, args.mp3_dir, "mp3")
             if not os.path.isfile(mid_fn):
-                if download_using_ytdl(links[i], mp3_fn):
+                if download_using_ytdl(links[i], mp3_fn, proxy_list):
                     if args.transcribe:
                         run_aria_amt(mp3_fn, args.mid_dir)
                         if os.path.isfile(mid_fn) and os.path.isfile(mp3_fn):
