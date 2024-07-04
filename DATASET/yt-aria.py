@@ -6,7 +6,7 @@ import json, ast, urllib.parse, argparse
 import random
 from tqdm.auto import tqdm
 from dtw import run as run_dtw
-
+import time
 
 
 MODEL_NAME = "medium-stacked"
@@ -30,6 +30,7 @@ def parse_args():
     parser.add_argument("--dtw-file", type=str, default="dtw-scores.csv")
     parser.add_argument("--score-threshold", type=float, default=8)
     parser.add_argument("--transcribe", action="store_true")
+    parser.add_argument("--sleep-time", type=int, default=0)
     parser.add_argument("-c", "--seed", type=int)
     args = parser.parse_args()
     if args.seed is not None:
@@ -183,6 +184,7 @@ def main():
                 list(map(remove_mp3, buffer_audio_files))
                 buffer_audio_files = []
                 buffer_midi_files = []
+            time.sleep(args.sleep_time)
 
         except Exception as e:
             print(f"ERROR {e}: failed to download audio/midi {links[i]}")
