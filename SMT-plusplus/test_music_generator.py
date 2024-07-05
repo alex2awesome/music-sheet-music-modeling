@@ -7,7 +7,7 @@ from Generator.MusicSynthGen import VerovioGenerator
 print('Starting Generator')
 generator = VerovioGenerator("Data/GrandStaff/partitions_grandstaff/types/train.txt", fixed_number_systems=True, tokenization_method="bekern")
 print('Created Generator')
-image, ground_truth = generator.generate_score(num_sys_gen=6, cut_height=False, random_margins=False, 
+image, ground_truth = generator.generate_score(num_sys_gen=3, cut_height=False, random_margins=False, 
                                                add_texture=False, include_title=True, include_author=True,
                                                check_generated_systems=True, page_size=[2980, 3728], reduce_ratio=0.35)
 
