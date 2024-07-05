@@ -201,7 +201,7 @@ def main():
 
     proxy_list = []
     if os.path.isfile(args.proxy_file):
-        proxy_list = load_proxies(args.proxy_file)
+        proxy_list = load_proxies(args.proxy_file, args.proxy_type)
 
     for i in tqdm(range(args.start_idx, args.end_idx)):
         try:
