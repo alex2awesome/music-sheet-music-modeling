@@ -28,6 +28,7 @@ def parse_args():
     parser.add_argument("-m", "--mid-dir", type=str, default="midi")
     parser.add_argument("-t", "--mp3-dir", type=str, default="mp3")
     parser.add_argument("--proxy-file", type=str, default="proxies.txt")
+    parser.add_argument("--proxy-type", type=str, default=None)
     parser.add_argument("--dtw-file", type=str, default="dtw-scores.csv")
     parser.add_argument("--score-threshold", type=float, default=8)
     parser.add_argument("--transcribe", action="store_true")
@@ -147,7 +148,7 @@ def remove_mp3(mp3_fp):
     else:
         print(f"ERROR: mp3 file not found, could not remove")
 
-def load_proxies(proxy_file):
+def load_proxies(proxy_file, proxy_type):
     """
     Load proxies from a file.
 
@@ -160,7 +161,14 @@ def load_proxies(proxy_file):
     proxies = []
     with open(proxy_file, "r") as file:
         for line in file:
-            proxies.append(line.strip())
+            if proxy_type == "socks5":
+                # assume proxy string is of the form "<ip>:<port>:<username>:<password>"
+                # e.g. "91.217.72.35:6764:khenaymt:elu0lcjycpdz"
+                ip, port, username, password = line.strip().split(":")
+                proxy = f"socks5://{username}:{password}@{ip}:{port}"
+            else:
+                proxy = line.strip()
+            proxies.append(proxy)
     return proxies
 
 
