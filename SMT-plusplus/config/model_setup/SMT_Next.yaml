@@ -5,5 +5,5 @@ num_dec_layers: 8
 encoder_type: "NexT"
 max_height: 2512
 max_width: 2512
-max_len: 5512
+max_len: 256
 lr: 1e-4

@@ -13,8 +13,7 @@ lightning
 loguru
 lxml
 matplotlib
-mkl-fft
-mkl-random
+
 moviepy
 names
 opencv-python

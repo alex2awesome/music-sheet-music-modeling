@@ -112,7 +112,7 @@ class SMT(L.LightningModule):
         encoder_output = self.forward_encoder(x)
         predicted_sequence = torch.from_numpy(np.asarray([self.w2i['<bos>']])).to(device).unsqueeze(0)
         cache = None
-        for i in range(self.maxlen):
+        for i in range(20):
              output, predictions, cache, weights = self.forward_decoder(encoder_output, predicted_sequence.long(), cache=cache)
              predicted_token = torch.argmax(predictions[:, :, -1]).item()
              predicted_sequence = torch.cat([predicted_sequence, torch.argmax(predictions[:, :, -1], dim=1, keepdim=True)], dim=1)
@@ -128,6 +128,11 @@ class SMT(L.LightningModule):
         gt = gt.replace("<t>", "\t")
         gt = gt.replace("<b>", "\n")
         gt = gt.replace("<s>", " ")
+
+         # Write to file
+        with open("validation_results.txt", "a") as f:
+            f.write(f"[Prediction] - {dec}\n")
+            f.write(f"[GT] - {gt}\n")
 
         self.valpredictions.append(dec)
         self.valgts.append(gt)
