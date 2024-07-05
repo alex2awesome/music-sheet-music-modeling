@@ -74,6 +74,7 @@ class VerovioGenerator():
         self.tokenization_method = tokenization_method
         self.beats = self.load_beats(gt_samples_path)
         self.title_generator = RandomSentence()
+        self.textures = [os.path.join(textures_path, f) for f in os.listdir(textures_path) if os.path.isfile(os.path.join(textures_path, f))]
         
     
     def load_beats(self, path):
