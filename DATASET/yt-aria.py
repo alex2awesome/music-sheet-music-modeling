@@ -206,16 +206,18 @@ def main():
             name = urllib.parse.quote(link, safe='', encoding=None, errors=None)
             mid_fn = get_name(name, args.mid_dir, "mid")
             mp3_fn = get_name(name, args.mp3_dir, "mp3")
-            if not os.path.isfile(mp3_fn) and args.download:
-                download_using_ytdl(link, mp3_fn, proxy_list)
-            else:
-                print(f"audio already downloaded for video: {link} as {mp3_fn}")
+            if args.download:
+                if not os.path.isfile(mp3_fn):
+                    download_using_ytdl(link, mp3_fn, proxy_list)
+                else:
+                    print(f"audio already downloaded for video: {link} as {mp3_fn}")
 
-            if os.path.isfile(mp3_fn) and not os.path.isfile(mid_fn) and args.transcribe:
-                run_aria_amt(mp3_fn, args.mid_dir)
-                if os.path.isfile(mid_fn) and os.path.isfile(mp3_fn):
-                    buffer_audio_files.append(mp3_fn)
-                    buffer_midi_files.append(mid_fn)
+            if args.transcribe:
+                if os.path.isfile(mp3_fn) and not os.path.isfile(mid_fn):
+                    run_aria_amt(mp3_fn, args.mid_dir)
+                    if os.path.isfile(mid_fn) and os.path.isfile(mp3_fn):
+                        buffer_audio_files.append(mp3_fn)
+                        buffer_midi_files.append(mid_fn)
 
             if len(buffer_audio_files) >= BATCH:
                 run_dtw(args.dtw_file, args.mp3_dir, args.mid_dir, buffer_audio_files, buffer_midi_files)
