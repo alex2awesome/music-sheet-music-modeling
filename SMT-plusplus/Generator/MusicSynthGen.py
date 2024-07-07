@@ -260,8 +260,9 @@ class VerovioGenerator():
                 sequence = random_systems[0]
             
             preseq = ""
-            preseq += f"!!!OTL:{self.title_generator.sentence()}\n" if include_title else ""
-            preseq += f"!!!COM:{names.get_full_name()}\n" if include_author else ""
+            # preseq += f"!!!OTL:{self.title_generator.sentence()}\n" if include_title else ""
+            preseq += f"!!!OTL:MUSIC GEN WORKS!!!!\n" if include_title else ""
+            preseq += f"!!!COM:finally some progress\n" if include_author else ""
             
             # krnseq = preseq + "".join(sequence[:-1]).replace("@", "").replace("<s>", " ").replace("<b>", "\n").replace("<t>", "\t").replace("**ekern", "**kern")
             krnseq = preseq + "".join(sequence[:-1]).replace("@", "").replace("<s>", " ").replace("<b>", "\n").replace("<t>", "\t").replace("**ekern_1.0", "**kern")

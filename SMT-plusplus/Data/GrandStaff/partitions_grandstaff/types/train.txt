@@ -6898,7 +6898,6 @@ grandstaff_dataset/scarlatti-d/keyboard-sonatas/L240K369/maj3_up_m-34-37.bekrn
 grandstaff_dataset/mozart/piano-sonatas/sonata06-1/min3_up_m-89-93.bekrn
 grandstaff_dataset/beethoven/piano-sonatas/sonata13-2/maj2_up_m-73-76.bekrn
 grandstaff_dataset/beethoven/piano-sonatas/sonata29-4/maj3_up_m-156-161.bekrn
-grandstaff_dataset/hummel/preludes/prelude67-01/._maj2_up_m-4-7.bekrn
 grandstaff_dataset/beethoven/piano-sonatas/sonata32-1/maj2_down_m-68-72.bekrn
 grandstaff_dataset/mozart/piano-sonatas/sonata01-2/maj2_up_m-27-30.bekrn
 grandstaff_dataset/beethoven/piano-sonatas/sonata19-1/maj2_down_m-15-18.bekrn
@@ -7955,7 +7954,6 @@ grandstaff_dataset/beethoven/piano-sonatas/sonata10-3/maj3_down_m-63-66.bekrn
 grandstaff_dataset/chopin/mazurkas/mazurka33-4/maj2_up_m-68-72.bekrn
 grandstaff_dataset/scarlatti-d/keyboard-sonatas/L338K450/maj3_down_m-40-43.bekrn
 grandstaff_dataset/mozart/piano-sonatas/sonata07-3/maj3_down_m-216-219.bekrn
-grandstaff_dataset/mozart/piano-sonatas/sonata15-2/._maj3_down_m-73-77.bekrn
 grandstaff_dataset/beethoven/piano-sonatas/sonata28-4/min3_up_m-117-121.bekrn
 grandstaff_dataset/scarlatti-d/keyboard-sonatas/L338K450/maj3_up_m-40-43.bekrn
 grandstaff_dataset/scarlatti-d/keyboard-sonatas/L303K170/min3_up_m-116-120.bekrn
@@ -9126,7 +9124,6 @@ grandstaff_dataset/chopin/preludes/prelude28-16/maj3_down_m-0-4.bekrn
 grandstaff_dataset/mozart/piano-sonatas/sonata12-1/maj3_up_m-163-166.bekrn
 grandstaff_dataset/beethoven/piano-sonatas/sonata24-1/min3_down_m-21-26.bekrn
 grandstaff_dataset/scarlatti-d/keyboard-sonatas/L303K170/maj2_up_m-35-40.bekrn
-grandstaff_dataset/mozart/piano-sonatas/sonata03-1/._maj2_up_m-16-21.bekrn
 grandstaff_dataset/beethoven/piano-sonatas/sonata10-1/maj2_down_m-44-48.bekrn
 grandstaff_dataset/beethoven/piano-sonatas/sonata09-3/maj3_down_m-3-6.bekrn
 grandstaff_dataset/beethoven/piano-sonatas/sonata20-1/maj3_down_m-16-21.bekrn
@@ -28370,13 +28367,11 @@ grandstaff_dataset/joplin/joplin/winners/maj2_up_m-34-37.bekrn
 grandstaff_dataset/scarlatti-d/keyboard-sonatas/L305K251/maj3_up_m-73-76.bekrn
 grandstaff_dataset/chopin/mazurkas/mazurka06-3/min3_up_m-7-10.bekrn
 grandstaff_dataset/chopin/mazurkas/mazurka68-3/min3_up_m-57-61.bekrn
-grandstaff_dataset/mozart/piano-sonatas/sonata06-3e/._min3_down_m-12-16.bekrn
 grandstaff_dataset/beethoven/piano-sonatas/sonata11-4/maj3_down_m-155-160.bekrn
 grandstaff_dataset/beethoven/piano-sonatas/sonata03-2/maj2_up_m-34-37.bekrn
 grandstaff_dataset/beethoven/piano-sonatas/sonata25-1/maj2_up_m-171-176.bekrn
 grandstaff_dataset/beethoven/piano-sonatas/sonata23-3/maj2_up_m-22-25.bekrn
 grandstaff_dataset/beethoven/piano-sonatas/sonata07-4/maj2_down_m-20-24.bekrn
-grandstaff_dataset/hummel/preludes/prelude67-01/._maj2_down_m-4-7.bekrn
 grandstaff_dataset/mozart/piano-sonatas/sonata09-1/maj3_up_m-67-70.bekrn
 grandstaff_dataset/mozart/piano-sonatas/sonata14-3/maj2_up_m-25-30.bekrn
 grandstaff_dataset/mozart/piano-sonatas/sonata14-3/maj3_down_m-81-84.bekrn
@@ -29922,7 +29917,6 @@ grandstaff_dataset/scarlatti-d/keyboard-sonatas/L008K461/maj2_up_m-43-46.bekrn
 grandstaff_dataset/scarlatti-d/keyboard-sonatas/L347K227/maj2_down_m-77-81.bekrn
 grandstaff_dataset/beethoven/piano-sonatas/sonata31-2/min3_down_m-121-126.bekrn
 grandstaff_dataset/beethoven/piano-sonatas/sonata14-1/maj2_up_m-29-33.bekrn
-grandstaff_dataset/chopin/mazurkas/mazurka41-2/._maj3_down_m-25-29.bekrn
 grandstaff_dataset/mozart/piano-sonatas/sonata01-3/maj2_down_m-102-105.bekrn
 grandstaff_dataset/beethoven/piano-sonatas/sonata28-2/maj2_up_m-48-51.bekrn
 grandstaff_dataset/beethoven/piano-sonatas/sonata04-4/maj2_up_m-156-160.bekrn
