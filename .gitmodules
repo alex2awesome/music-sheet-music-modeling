@@ -1,3 +1,6 @@
 [submodule "aria-amt"]
 	path = aria-amt
 	url = https://github.com/EleutherAI/aria-amt
+[submodule "MIDI-to_MIDI"]
+	path = MIDI-to_MIDI
+	url = https://github.com/eleutherai/aria
