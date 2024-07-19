@@ -90,11 +90,16 @@ def download_using_ytdl(yt_link, mp3_output_fp, proxy_list):
     bool: True if the download is successful, False otherwise.
     """
 
-    cmd = f"yt-dlp --extract-audio --audio-format mp3 --no-playlist --audio-quality 0 {yt_link} -o {mp3_output_fp}"
+    cmd = f"""yt-dlp \
+        --write-info-json \
+        --extract-audio \
+        --audio-format mp3 \
+        --no-playlist \
+        --audio-quality 0 {yt_link} -o {mp3_output_fp}"""
 
     if len(proxy_list) > 0:
         proxy = random.choice(proxy_list)
-        cmd = f"yt-dlp --extract-audio --audio-format mp3 --proxy {proxy} --no-playlist --audio-quality 0 {yt_link} -o {mp3_output_fp}"
+        cmd += f" --proxy {proxy}"
 
     if not os.path.isfile(mp3_output_fp):
         os.system(cmd)

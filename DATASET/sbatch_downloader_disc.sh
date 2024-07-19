@@ -9,7 +9,7 @@
 # module purge
 # eval "$(conda shell.bash hook)"
 # mamba activate music-research
-python yt-aria.py \
+python yt_aria.py \
     --input_json youtube-links__10-6.jsonl \
     --sleep-time 10 \
     --proxy-file proxies.txt \
